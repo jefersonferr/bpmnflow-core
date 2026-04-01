@@ -1,0 +1,32 @@
+Model 06:
+	Workflow{
+		name='Participant Name',
+		id='Process_18j48za',
+		version='1.0',
+		documentation='Process documentation',
+		type='PT',
+		subtype='PST',
+		stages=[],
+		activities=[
+			ActivityNode{abbreviation='ST-AC1', name='Task 1',
+				conclusions=[
+					Conclusion{code='03', name='Conclusion 03'},
+					Conclusion{code='02', name='Conclusion 02'}
+				]
+			}
+		],
+		inconsistencies=[
+			Inconsistency{type=7, description='Missing extension property 'stage' in element Lane_1exak07'},
+			Inconsistency{type=8, description='Missing attribute 'name' in element Lane_1exak07'},
+			Inconsistency{type=7, description='Missing extension property 'stage' in element Lane_1a28ei2'},
+			Inconsistency{type=8, description='Missing attribute 'name' in element Lane_1a28ei2'},
+			Inconsistency{type=9, description='Missing attribute 'name' in element Activity_0fcry4u'},
+			Inconsistency{type=13, description='Missing attribute 'name' in element Flow_0g77gwm'}
+		],
+		rules=[
+			WorkflowRule{type='1', source='null', target='ST-AC1', conclusion='null', processStatus='NEW'},
+			WorkflowRule{type='5', source='ST-AC1', target='ST-AC1', conclusion='03', processStatus='null'},
+			WorkflowRule{type='8', source='ST-AC1', target='null', conclusion='02', processStatus='END'},
+			WorkflowRule{type='7', source='null', target='null', conclusion='null', processStatus='END'}
+		]
+	}

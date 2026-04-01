@@ -1,0 +1,27 @@
+Model 04:
+	Workflow{
+		name='null',
+		id='null',
+		version='null',
+		documentation='null',
+		type='null',
+		subtype='null',
+		stages=[],
+		activities=[
+			ActivityNode{abbreviation='ST-AC1', name='Task 1',
+				conclusions=[]
+			},
+			ActivityNode{abbreviation='ST-AC2', name='Task 2',
+				conclusions=[]
+			}
+		],
+		inconsistencies=[
+			Inconsistency{type=14, description='Missing extension property 'conclusion' in element Flow_0l9hopg'},
+			Inconsistency{type=14, description='Missing extension property 'conclusion' in element Flow_0g77gwm'},
+			Inconsistency{type=14, description='Missing extension property 'conclusion' in element Flow_0dlwvbu'}
+		],
+		rules=[
+			WorkflowRule{type='1', source='null', target='ST-AC1', conclusion='null', processStatus='NEW'},
+			WorkflowRule{type='7', source='ST-AC2', target='null', conclusion='null', processStatus='END'}
+		]
+	}

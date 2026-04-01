@@ -1,0 +1,16 @@
+org/bpmnflow/model/Inconsistency.class
+org/bpmnflow/parser/ModelProperty$1.class
+org/bpmnflow/model/WorkflowRule.class
+org/bpmnflow/parser/BpmnPropertiesLoader.class
+org/bpmnflow/model/Node.class
+org/bpmnflow/BpmnFlow.class
+org/bpmnflow/model/Conclusion.class
+org/bpmnflow/parser/ConfigLoader.class
+org/bpmnflow/model/RuleType.class
+org/bpmnflow/parser/BpmnPropertiesConfig.class
+org/bpmnflow/model/Workflow.class
+org/bpmnflow/parser/ModelProperty.class
+org/bpmnflow/model/Stage.class
+org/bpmnflow/model/StartEndNode.class
+org/bpmnflow/model/ActivityNode.class
+org/bpmnflow/parser/ModelParser.class

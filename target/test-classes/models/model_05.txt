@@ -1,0 +1,37 @@
+Model 05:
+	Workflow{
+		name='null',
+		id='Process_18j48za',
+		version='null',
+		documentation='null',
+		type='null',
+		subtype='null',
+		stages=[],
+		activities=[
+			ActivityNode{abbreviation='ST-AC1', name='Task 1',
+				conclusions=[
+					Conclusion{code='03', name='Conclusion 03'},
+					Conclusion{code='01', name='Conclusion 01'},
+					Conclusion{code='02', name='Conclusion 02'}
+				]
+			},
+			ActivityNode{abbreviation='ST-AC2', name='Task 2',
+				conclusions=[]
+			}
+		],
+		inconsistencies=[
+			Inconsistency{type=1, description='Missing attribute 'Name' in element Participant_1v3ebpk'},
+			Inconsistency{type=3, description='Missing attribute 'Version tag' in element Participant_1v3ebpk'},
+			Inconsistency{type=101, description='At least one nested element 'Documentation' is required in element Participant_1v3ebpk'},
+			Inconsistency{type=5, description='Missing extension property 'process_type' in element Participant_1v3ebpk'},
+			Inconsistency{type=6, description='Missing extension property 'process_subtype' in element Participant_1v3ebpk'},
+			Inconsistency{type=102, description='At least one element 'Lane' is required'}
+		],
+		rules=[
+			WorkflowRule{type='1', source='null', target='ST-AC1', conclusion='null', processStatus='NEW'},
+			WorkflowRule{type='5', source='ST-AC1', target='ST-AC1', conclusion='03', processStatus='null'},
+			WorkflowRule{type='7', source='ST-AC2', target='null', conclusion='null', processStatus='END'},
+			WorkflowRule{type='8', source='ST-AC1', target='null', conclusion='02', processStatus='END'},
+			WorkflowRule{type='5', source='ST-AC1', target='ST-AC2', conclusion='01', processStatus='null'}
+		]
+	}
