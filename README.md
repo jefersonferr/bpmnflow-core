@@ -1,4 +1,4 @@
-# BPMNFlow Core
+# BPMNFlow
 
 > Lightweight BPMN model parser for model-driven workflow automation
 
@@ -11,8 +11,8 @@
 
 ## Table of Contents
 
-- [Why BPMNFlow Core?](#why-bpmnflow-core)
-- [BPMNFlow Core vs Traditional BPMN Engines](#bpmnflow-core-vs-traditional-bpmn-engines)
+- [Why BPMNFlow?](#why-bpmnflow)
+- [BPMNFlow vs Traditional BPMN Engines](#bpmnflow-vs-traditional-bpmn-engines)
 - [Quick Start](#quick-start)
 - [Extension Properties](#extension-properties)
 - [YAML Configuration](#yaml-configuration)
@@ -21,9 +21,9 @@
 
 ---
 
-## Why BPMNFlow Core?
+## Why BPMNFlow?
 
-Most projects that adopt BPMN don't need a full workflow engine — they need to **read business intent from a diagram and act on it**. BPMNFlow Core solves exactly that, without the infrastructure overhead of Camunda or Flowable.
+Most projects that adopt BPMN don't need a full workflow engine — they need to **read business intent from a diagram and act on it**. BPMNFlow solves exactly that, without the infrastructure overhead of Camunda or Flowable.
 
 - **Lightweight** — no runtime engine, no state persistence, no database
 - **Model-as-Code** — BPMN becomes a dynamic configuration layer
@@ -33,9 +33,9 @@ Most projects that adopt BPMN don't need a full workflow engine — they need to
 
 ---
 
-## BPMNFlow Core vs Traditional BPMN Engines
+## BPMNFlow vs Traditional BPMN Engines
 
-| Feature              | BPMNFlow Core | Camunda / Flowable |
+| Feature              | BPMNFlow      | Camunda / Flowable |
 |----------------------|---------------|--------------------|
 | Runtime engine       | No            | Yes                |
 | State management     | No            | Yes                |
@@ -44,7 +44,7 @@ Most projects that adopt BPMN don't need a full workflow engine — they need to
 | Model parsing        | Yes           | Yes                |
 | Setup complexity     | Low           | High               |
 
-Use BPMNFlow Core when you need **interpretation**, not orchestration.
+Use BPMNFlow when you need **interpretation**, not orchestration.
 
 ---
 
@@ -80,7 +80,7 @@ try (InputStream model  = Files.newInputStream(Path.of("process.bpmn"));
 
 ## Extension Properties
 
-Extension properties let you embed custom metadata directly in BPMN elements. BPMNFlow Core reads these properties and maps them to the parsed `Workflow` object.
+Extension properties let you embed custom metadata directly in BPMN elements. BPMNFlow reads these properties and maps them to the parsed `Workflow` object.
 
 ### Supported elements and properties
 
@@ -114,8 +114,8 @@ Open any element → **Properties Panel** → **Extension Properties** → click
 <bpmn:sequenceFlow id="Flow_1" sourceRef="Task_1" targetRef="Task_2" name="Approved">
   <bpmn:extensionElements>
     <camunda:properties>
-      <camunda:property name="conclusion"      value="APR" />
-      <camunda:property name="process_status"  value="IN_PROGRESS" />
+      <camunda:property name="conclusion"     value="APR" />
+      <camunda:property name="process_status" value="IN_PROGRESS" />
     </camunda:properties>
   </bpmn:extensionElements>
 </bpmn:sequenceFlow>
@@ -190,11 +190,11 @@ bpmn_model_parser:
 
 Each entry has three fields:
 
-| Field       | Description                                                            |
-|-------------|------------------------------------------------------------------------|
+| Field       | Description                                                              |
+|-------------|--------------------------------------------------------------------------|
 | `name`      | Property name — either a standard XML attribute or an extension property |
-| `required`  | If `true`, absence generates an `Inconsistency`                        |
-| `extension` | If `true`, the property is read from `<camunda:properties>`; if `false`, from the element's XML attribute |
+| `required`  | If `true`, absence generates an `Inconsistency`                          |
+| `extension` | If `true`, read from `<camunda:properties>`; if `false`, from the XML attribute |
 
 ---
 
@@ -207,10 +207,10 @@ Reject a deployment if the BPMN model doesn't satisfy the config:
 Workflow workflow = ModelParser.parser(modelStream, configStream);
 
 if (!workflow.getInconsistencies().isEmpty()) {
-    workflow.getInconsistencies().forEach(i ->
+        workflow.getInconsistencies().forEach(i ->
         System.err.println("[" + i.getType() + "] " + i.getDescription())
-    );
-    System.exit(1);
+        );
+        System.exit(1);
 }
 ```
 
@@ -221,7 +221,7 @@ Query the model at runtime instead of hardcoding transitions:
 // Which rules are triggered when a case enters status "NV"?
 workflow.getRules().stream()
     .filter(r -> "NV".equals(r.getProcessStatus()))
-    .forEach(r -> System.out.println("Entry activity: " + r.getTarget().getAbbreviation()));
+        .forEach(r -> System.out.println("Entry activity: " + r.getTarget().getAbbreviation()));
 ```
 
 ### 3. Lightweight microservices orchestration
