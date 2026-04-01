@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.278" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="org.bpmnflow.parser.ModelParserTest$Model01Tests" time="1.078" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="23"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -7,7 +7,6 @@
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://java.oracle.com/"/>
-    <property name="user.timezone" value="America/Sao_Paulo"/>
     <property name="os.name" value="Linux"/>
     <property name="java.vm.specification.version" value="23"/>
     <property name="user.country" value="BR"/>
@@ -59,34 +58,8 @@
     <property name="maven.repo.local" value="/home/jeferson/.m2/repository"/>
     <property name="java.class.version" value="67.0"/>
   </properties>
-  <testcase name="givenEmptyConfig_whenAnyGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.183">
-    <system-err><![CDATA[abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'task' not found in config — property 'stage' treated as not required.
-abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'participant' not found in config — property 'name' treated as not required.
-abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'process' not found in config — property 'id' treated as not required.
-abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'lane' not found in config — property 'stage' treated as not required.
-abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'startEvent' not found in config — property 'process_status' treated as not required.
-abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'endEvent' not found in config — property 'process_status' treated as not required.
-abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'sequenceFlow' not found in config — property 'conclusion' treated as not required.
-]]></system-err>
-  </testcase>
-  <testcase name="givenExistingOptionalProperty_whenGet_thenIsRequiredFalse" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.007"/>
-  <testcase name="givenTwoMissingProperties_whenGet_thenSameAbsentInstance" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.023">
-    <system-err><![CDATA[abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'lane' not found in config — property 'inexistente_b' treated as not required.
-]]></system-err>
-  </testcase>
-  <testcase name="givenMissingElementType_whenGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.011">
-    <system-err><![CDATA[abr. 01, 2026 11:34:51 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
-WARNING: Element type 'lane' not found in config — property 'stage' treated as not required.
-]]></system-err>
-  </testcase>
-  <testcase name="givenMissingProperty_whenGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.021"/>
-  <testcase name="givenExistingRequiredProperty_whenGet_thenIsRequiredTrue" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.011"/>
+  <testcase name="estruturaGeral" classname="org.bpmnflow.parser.ModelParserTest$Model01Tests" time="0.047"/>
+  <testcase name="rule1_startEventToTask" classname="org.bpmnflow.parser.ModelParserTest$Model01Tests" time="0.009"/>
+  <testcase name="rule2_taskToTask" classname="org.bpmnflow.parser.ModelParserTest$Model01Tests" time="0.006"/>
+  <testcase name="rule7_taskToEndEvent" classname="org.bpmnflow.parser.ModelParserTest$Model01Tests" time="0.003"/>
 </testsuite>
