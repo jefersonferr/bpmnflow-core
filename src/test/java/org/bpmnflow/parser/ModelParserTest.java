@@ -1,4 +1,4 @@
-package org.bpmnflow;
+package org.bpmnflow.parser;
 
 import org.bpmnflow.model.Workflow;
 import org.bpmnflow.parser.ConfigLoader;

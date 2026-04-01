@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.085" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.206" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="23"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -13,7 +13,7 @@
     <property name="user.country" value="BR"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/home/jeferson/.jdks/openjdk-23.0.2/lib"/>
-    <property name="sun.java.command" value="/home/jeferson/devel/ideaProjects/bpmnflow-core/target/surefire/surefirebooter-20260401111456452_3.jar /home/jeferson/devel/ideaProjects/bpmnflow-core/target/surefire 2026-04-01T11-14-56_313-jvmRun1 surefire-20260401111456452_1tmp surefire_0-20260401111456452_2tmp"/>
+    <property name="sun.java.command" value="/home/jeferson/devel/ideaProjects/bpmnflow-core/target/surefire/surefirebooter-20260401113236100_3.jar /home/jeferson/devel/ideaProjects/bpmnflow-core/target/surefire 2026-04-01T11-32-35_907-jvmRun1 surefire-20260401113236100_1tmp surefire_0-20260401113236100_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/jeferson/devel/ideaProjects/bpmnflow-core/target/test-classes:/home/jeferson/devel/ideaProjects/bpmnflow-core/target/classes:/home/jeferson/.m2/repository/org/junit/jupiter/junit-jupiter/5.11.3/junit-jupiter-5.11.3.jar:/home/jeferson/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.3/junit-jupiter-api-5.11.3.jar:/home/jeferson/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/jeferson/.m2/repository/org/junit/platform/junit-platform-commons/1.11.3/junit-platform-commons-1.11.3.jar:/home/jeferson/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/jeferson/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.11.3/junit-jupiter-params-5.11.3.jar:/home/jeferson/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.11.3/junit-jupiter-engine-5.11.3.jar:/home/jeferson/.m2/repository/org/junit/platform/junit-platform-engine/1.11.3/junit-platform-engine-1.11.3.jar:/home/jeferson/.m2/repository/org/camunda/bpm/model/camunda-bpmn-model/7.22.0/camunda-bpmn-model-7.22.0.jar:/home/jeferson/.m2/repository/org/camunda/bpm/model/camunda-xml-model/7.22.0/camunda-xml-model-7.22.0.jar:/home/jeferson/.m2/repository/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar:/home/jeferson/.m2/repository/org/yaml/snakeyaml/2.3/snakeyaml-2.3.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -29,7 +29,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/home/jeferson/devel/ideaProjects/bpmnflow-core/target/surefire/surefirebooter-20260401111456452_3.jar"/>
+    <property name="surefire.real.class.path" value="/home/jeferson/devel/ideaProjects/bpmnflow-core/target/surefire/surefirebooter-20260401113236100_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="23.0.2+7-58"/>
     <property name="user.name" value="jeferson"/>
@@ -59,34 +59,34 @@
     <property name="maven.repo.local" value="/home/jeferson/.m2/repository"/>
     <property name="java.class.version" value="67.0"/>
   </properties>
-  <testcase name="givenEmptyConfig_whenAnyGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.059">
-    <system-err><![CDATA[abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+  <testcase name="givenEmptyConfig_whenAnyGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.134">
+    <system-err><![CDATA[abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'task' not found in config — property 'stage' treated as not required.
-abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'participant' not found in config — property 'name' treated as not required.
-abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'process' not found in config — property 'id' treated as not required.
-abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'lane' not found in config — property 'stage' treated as not required.
-abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'startEvent' not found in config — property 'process_status' treated as not required.
-abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'endEvent' not found in config — property 'process_status' treated as not required.
-abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'sequenceFlow' not found in config — property 'conclusion' treated as not required.
 ]]></system-err>
   </testcase>
-  <testcase name="givenExistingOptionalProperty_whenGet_thenIsRequiredFalse" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.002"/>
-  <testcase name="givenTwoMissingProperties_whenGet_thenSameAbsentInstance" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.003">
-    <system-err><![CDATA[abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+  <testcase name="givenExistingOptionalProperty_whenGet_thenIsRequiredFalse" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.01"/>
+  <testcase name="givenTwoMissingProperties_whenGet_thenSameAbsentInstance" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.005">
+    <system-err><![CDATA[abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'lane' not found in config — property 'inexistente_b' treated as not required.
 ]]></system-err>
   </testcase>
-  <testcase name="givenMissingElementType_whenGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.002">
-    <system-err><![CDATA[abr. 01, 2026 11:14:58 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
+  <testcase name="givenMissingElementType_whenGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.007">
+    <system-err><![CDATA[abr. 01, 2026 11:32:38 AM org.bpmnflow.parser.BpmnPropertiesLoader getPropertiesForType
 WARNING: Element type 'lane' not found in config — property 'stage' treated as not required.
 ]]></system-err>
   </testcase>
-  <testcase name="givenMissingProperty_whenGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.003"/>
-  <testcase name="givenExistingRequiredProperty_whenGet_thenIsRequiredTrue" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.001"/>
+  <testcase name="givenMissingProperty_whenGet_thenReturnsAbsentWithoutNPE" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.008"/>
+  <testcase name="givenExistingRequiredProperty_whenGet_thenIsRequiredTrue" classname="org.bpmnflow.parser.BpmnPropertiesLoaderTest" time="0.007"/>
 </testsuite>
