@@ -27,7 +27,7 @@ Thank you for your interest in contributing to BPMNFlow! This document explains 
 
 ```bash
 git clone https://github.com/jefersonferr/bpmnflow-core.git
-cd bpmn-model-parser
+cd bpmnflow-core
 mvn compile
 ```
 
