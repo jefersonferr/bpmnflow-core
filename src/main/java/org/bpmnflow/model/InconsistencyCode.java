@@ -1,13 +1,15 @@
 package org.bpmnflow.model;
 
+import lombok.Getter;
+
 /**
  * Typed inconsistency codes. Replaces the magic integers that were
  * scattered across ModelParser. Each constant owns its own code and
  * default message template so call sites never hard-code either.
- *
  * Codes 1-99: field-level validation (missing attribute or property).
  * Codes 100+: structural validation (missing element).
  */
+@Getter
 public enum InconsistencyCode {
 
     // --- Participant / Process ---
@@ -46,10 +48,6 @@ public enum InconsistencyCode {
     InconsistencyCode(int code, String messageTemplate) {
         this.code = code;
         this.messageTemplate = messageTemplate;
-    }
-
-    public int getCode() {
-        return code;
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.bpmnflow.parser;
 
 import org.bpmnflow.model.*;
-import org.bpmnflow.model.InconsistencyCode.*;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
