@@ -2,8 +2,12 @@ package org.bpmnflow.parser;
 
 import org.bpmnflow.model.*;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Mutable accumulator shared across all {@link ElementHandler} implementations
@@ -24,10 +28,11 @@ public class ParsingContext {
     String processSubtype;
 
     // -- Collected elements --
-    final List<Stage>          stages          = new ArrayList<>();
-    final List<Inconsistency>  inconsistencies = new ArrayList<>();
-    final Map<String, Node>    nodeMap         = new HashMap<>();
-    final Map<org.camunda.bpm.model.bpmn.instance.SequenceFlow, Conclusion> conclusionMap = new HashMap<>();
+    final List<Stage>               stages        = new ArrayList<>();
+    final List<Inconsistency>       inconsistencies = new ArrayList<>();
+    final List<WorkflowRule>        rules         = new ArrayList<>();
+    final Map<String, Node>         nodeMap       = new HashMap<>();
+    final Map<SequenceFlow, Conclusion> conclusionMap = new HashMap<>();
 
     // -- Parsed model (set once by ModelParser before handlers run) --
     BpmnModelInstance modelInstance;
@@ -47,6 +52,10 @@ public class ParsingContext {
         stages.add(stage);
     }
 
+    public void addRule(WorkflowRule rule) {
+        rules.add(rule);
+    }
+
     public void putNode(String id, Node node) {
         nodeMap.put(id, node);
     }
@@ -55,11 +64,11 @@ public class ParsingContext {
         return nodeMap.get(id);
     }
 
-    public void putConclusion(org.camunda.bpm.model.bpmn.instance.SequenceFlow flow, Conclusion conclusion) {
+    public void putConclusion(SequenceFlow flow, Conclusion conclusion) {
         conclusionMap.put(flow, conclusion);
     }
 
-    public Conclusion getConclusion(org.camunda.bpm.model.bpmn.instance.SequenceFlow flow) {
+    public Conclusion getConclusion(SequenceFlow flow) {
         return conclusionMap.get(flow);
     }
 }

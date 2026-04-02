@@ -73,7 +73,6 @@ public class ModelParser {
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse BPMN model stream", e);
         }
-        ctx.workflow = new Workflow(null, null, null, null, null, null);
         return ctx;
     }
 
