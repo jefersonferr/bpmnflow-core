@@ -1,0 +1,49 @@
+# ========================================
+# BPMNFlow Core — .gitignore
+# ========================================
+
+# ------- Maven build output -------
+target/
+
+# ------- IntelliJ IDEA -------
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ------- Eclipse -------
+.classpath
+.project
+.settings/
+bin/
+
+# ------- VS Code -------
+.vscode/
+
+# ------- NetBeans -------
+nbproject/
+nbbuild/
+nbdist/
+nb-configuration.xml
+
+# ------- OS generated files -------
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ------- Java / JVM -------
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# ------- Logs -------
+*.log
+
+# ------- Maven wrapper (if adopted later) -------
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
