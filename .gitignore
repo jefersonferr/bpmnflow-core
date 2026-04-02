@@ -1,49 +1,139 @@
-# ========================================
+# ============================================================
 # BPMNFlow Core — .gitignore
-# ========================================
+# Java 17 · Maven · IntelliJ IDEA · Eclipse · VS Code · macOS · Windows · Linux
+# ============================================================
 
-# ------- Maven build output -------
+# ---------------------------------------------------------------
+# Maven build output
+# ---------------------------------------------------------------
 target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
 
-# ------- IntelliJ IDEA -------
+# Maven Wrapper — manter os arquivos de configuração no repositório
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+!mvnw
+!mvnw.cmd
+
+# ---------------------------------------------------------------
+# Compiled Java output
+# ---------------------------------------------------------------
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# ---------------------------------------------------------------
+# JVM crash logs
+# ---------------------------------------------------------------
+hs_err_pid*
+replay_pid*
+
+# ---------------------------------------------------------------
+# IntelliJ IDEA
+# ---------------------------------------------------------------
 .idea/
 *.iml
 *.iws
 *.ipr
+out/
 
-# ------- Eclipse -------
+# ---------------------------------------------------------------
+# Eclipse / STS
+# ---------------------------------------------------------------
 .classpath
 .project
 .settings/
+.springBeans
+.sts4-cache
 bin/
 
-# ------- VS Code -------
+# ---------------------------------------------------------------
+# VS Code
+# ---------------------------------------------------------------
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# ------- NetBeans -------
+# ---------------------------------------------------------------
+# NetBeans
+# ---------------------------------------------------------------
 nbproject/
 nbbuild/
 nbdist/
 nb-configuration.xml
 
-# ------- OS generated files -------
+# ---------------------------------------------------------------
+# BlueJ
+# ---------------------------------------------------------------
+*.bjp
+*.ctxt
+
+# ---------------------------------------------------------------
+# Logs e arquivos temporários de aplicação
+# ---------------------------------------------------------------
+*.log
+*.log.*
+logs/
+
+# ---------------------------------------------------------------
+# Arquivos de cobertura e relatórios de teste
+# ---------------------------------------------------------------
+.jacoco/
+jacoco.exec
+
+# ---------------------------------------------------------------
+# macOS
+# ---------------------------------------------------------------
 .DS_Store
 .DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# ---------------------------------------------------------------
+# Windows
+# ---------------------------------------------------------------
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
 Desktop.ini
+$RECYCLE.BIN/
+*.lnk
 
-# ------- Java / JVM -------
-*.class
-*.jar
-*.war
-*.ear
-hs_err_pid*
-replay_pid*
+# ---------------------------------------------------------------
+# Linux
+# ---------------------------------------------------------------
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
 
-# ------- Logs -------
-*.log
-
-# ------- Maven wrapper (if adopted later) -------
-!.mvn/wrapper/maven-wrapper.jar
-!.mvn/wrapper/maven-wrapper.properties
+# ---------------------------------------------------------------
+# Segurança — nunca versionar segredos
+# ---------------------------------------------------------------
+*.env
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.jks
+*.keystore
+application-local.yml
+application-local.yaml
+application-local.properties
