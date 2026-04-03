@@ -66,15 +66,15 @@ import org.bpmnflow.parser.ModelParser;
 import org.bpmnflow.model.Workflow;
 
 try (InputStream model  = Files.newInputStream(Path.of("process.bpmn"));
-     InputStream config = Files.newInputStream(Path.of("bpmn-config.yaml"))) {
+InputStream config = Files.newInputStream(Path.of("bpmn-config.yaml"))) {
 
-    Workflow workflow = ModelParser.parser(model, config);
+Workflow workflow = ModelParser.parser(model, config);
 
     System.out.println("Name:        " + workflow.getName());
-    System.out.println("Valid:       " + workflow.getInconsistencies().isEmpty());
-    System.out.println("Activities:  " + workflow.getActivities().size());
-    System.out.println("Rules:       " + workflow.getRules().size());
-}
+        System.out.println("Valid:       " + workflow.getInconsistencies().isEmpty());
+        System.out.println("Activities:  " + workflow.getActivities().size());
+        System.out.println("Rules:       " + workflow.getRules().size());
+        }
 ```
 
 ---
@@ -82,6 +82,8 @@ try (InputStream model  = Files.newInputStream(Path.of("process.bpmn"));
 ## Extension Properties
 
 Extension properties let you embed custom metadata directly in BPMN elements. BPMNFlow reads these properties and maps them to the parsed `Workflow` object.
+
+> **The properties listed below are not fixed** — they are simply the ones extracted and validated based on what you define in your `bpmn-config.yaml`. You have full control over which properties are read, which are required, and which elements they apply to. See [YAML Configuration](#yaml-configuration) for details.
 
 ### Supported elements and properties
 
