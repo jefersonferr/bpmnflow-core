@@ -6,6 +6,7 @@
 ![Maven](https://img.shields.io/badge/Maven-3.8+-orange)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![BPMN Support](https://img.shields.io/badge/BPMN-2.0-brightgreen)
+![CI](https://github.com/jefersonferr/bpmnflow-core/actions/workflows/ci.yml/badge.svg)
 
 ---
 
@@ -29,7 +30,7 @@ Most projects that adopt BPMN don't need a full workflow engine — they need to
 - **Model-as-Code** — BPMN becomes a dynamic configuration layer
 - **YAML-driven validation** — define which properties are required per element type
 - **Zero lock-in** — works with any architecture or framework
-- **Spring Boot ready** — see [bpmnflow-starter](https://github.com/jefersonferr/bpmnflow-starter)
+- **Spring Boot ready** — see [bpmnflow-spring-boot-starter](https://github.com/jefersonferr/bpmnflow-spring-boot-starter)
 
 ---
 
@@ -84,17 +85,17 @@ Extension properties let you embed custom metadata directly in BPMN elements. BP
 
 ### Supported elements and properties
 
-| Element         | Property          | Description                              |
-|-----------------|-------------------|------------------------------------------|
-| `Participant`   | `process_type`    | Process classification (e.g. `RD`)       |
-| `Participant`   | `process_subtype` | Process subtype (e.g. `ODN`)             |
-| `Lane`          | `stage`           | Stage code for the lane (e.g. `TR`)      |
-| `Task`          | `stage`           | Stage the task belongs to                |
-| `Task`          | `activity`        | Activity code within the stage           |
-| `StartEvent`    | `process_status`  | Initial process status (e.g. `NV`)       |
-| `EndEvent`      | `process_status`  | Final process status (e.g. `CLOSED`)     |
-| `SequenceFlow`  | `conclusion`      | Conclusion code that triggers this path  |
-| `SequenceFlow`  | `process_status`  | Resulting status after the transition    |
+| Element         | Property          | Description                                        |
+|-----------------|-------------------|----------------------------------------------------|
+| `Participant`   | `process_type`    | Process classification — any value defined in your model |
+| `Participant`   | `process_subtype` | Process subtype — any value defined in your model  |
+| `Lane`          | `stage`           | Stage code for the lane                            |
+| `Task`          | `stage`           | Stage the task belongs to                          |
+| `Task`          | `activity`        | Activity code within the stage                     |
+| `StartEvent`    | `process_status`  | Initial process status                             |
+| `EndEvent`      | `process_status`  | Final process status                               |
+| `SequenceFlow`  | `conclusion`      | Conclusion code that triggers this path            |
+| `SequenceFlow`  | `process_status`  | Resulting status after the transition              |
 
 ### Defining properties in Camunda Modeler
 
@@ -102,11 +103,11 @@ Open any element → **Properties Panel** → **Extension Properties** → click
 
 ### Defining properties in BPMN XML
 ```xml
-<bpmn:task id="Task_1" name="Triage">
+<bpmn:task id="Task_1" name="My Task">
   <bpmn:extensionElements>
     <camunda:properties>
-      <camunda:property name="stage"    value="TR" />
-      <camunda:property name="activity" value="TR1" />
+      <camunda:property name="stage"    value="YOUR_STAGE_CODE" />
+      <camunda:property name="activity" value="YOUR_ACTIVITY_CODE" />
     </camunda:properties>
   </bpmn:extensionElements>
 </bpmn:task>
@@ -114,8 +115,8 @@ Open any element → **Properties Panel** → **Extension Properties** → click
 <bpmn:sequenceFlow id="Flow_1" sourceRef="Task_1" targetRef="Task_2" name="Approved">
   <bpmn:extensionElements>
     <camunda:properties>
-      <camunda:property name="conclusion"     value="APR" />
-      <camunda:property name="process_status" value="IN_PROGRESS" />
+      <camunda:property name="conclusion"     value="YOUR_CONCLUSION_CODE" />
+      <camunda:property name="process_status" value="YOUR_STATUS" />
     </camunda:properties>
   </bpmn:extensionElements>
 </bpmn:sequenceFlow>
@@ -207,10 +208,10 @@ Reject a deployment if the BPMN model doesn't satisfy the config:
 Workflow workflow = ModelParser.parser(modelStream, configStream);
 
 if (!workflow.getInconsistencies().isEmpty()) {
-        workflow.getInconsistencies().forEach(i ->
+    workflow.getInconsistencies().forEach(i ->
         System.err.println("[" + i.getType() + "] " + i.getDescription())
-        );
-        System.exit(1);
+    );
+    System.exit(1);
 }
 ```
 
@@ -218,9 +219,9 @@ if (!workflow.getInconsistencies().isEmpty()) {
 
 Query the model at runtime instead of hardcoding transitions:
 ```java
-// Which rules are triggered when a case enters status "NV"?
+// Which rules are triggered when a case enters a given status?
 workflow.getRules().stream()
-    .filter(r -> "NV".equals(r.getProcessStatus()))
+    .filter(r -> myStatus.equals(r.getProcessStatus()))
         .forEach(r -> System.out.println("Entry activity: " + r.getTarget().getAbbreviation()));
 ```
 
