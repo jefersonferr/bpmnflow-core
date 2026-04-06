@@ -1,48 +1,45 @@
 package org.bpmnflow.parser;
 
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import org.bpmnflow.model.ActivityNode;
 import org.bpmnflow.model.Workflow;
-import org.camunda.bpm.model.bpmn.Bpmn;
+import org.bpmnflow.parser.engine.EngineAdapterFactory;
 
 import java.io.InputStream;
 import java.util.List;
 
 /**
- * Public façade for BPMN model parsing.
+ * Fachada pública para o parsing de modelos BPMN.
  *
- * <p>This class is intentionally thin: it reads the model stream, wires up
- * the {@link ParsingContext}, and delegates every parsing concern to a
- * dedicated {@link ElementHandler}. It contains zero parsing logic of its own.</p>
+ * <p>Esta classe é intencionalmente fina: lê o stream do modelo, monta o
+ * {@link ParsingContext} com o {@link org.bpmnflow.parser.engine.EngineAdapter}
+ * correto, e delega cada preocupação de parsing a um {@link ElementHandler}
+ * dedicado. Não contém lógica de parsing própria.</p>
  *
- * <h2>Handler execution order</h2>
+ * <h2>Ordem de execução dos handlers</h2>
  * <ol>
- *   <li>{@link ParticipantHandler} — workflow header, lanes → stages</li>
- *   <li>{@link FlowNodeHandler}    — tasks, start/end events → nodeMap</li>
+ *   <li>{@link ParticipantHandler} — cabeçalho do workflow, lanes → stages</li>
+ *   <li>{@link FlowNodeHandler}    — tasks, eventos → nodeMap</li>
  *   <li>{@link GatewayHandler}     — exclusive gateways → conclusionMap</li>
  *   <li>{@link RuleHandler}        — sequence flows → WorkflowRules</li>
  * </ol>
- *
- * <p>Adding support for a new element type (e.g. parallel gateways, sub-processes)
- * means implementing a new {@link ElementHandler} and inserting it at the
- * correct position in the list below — no changes to existing classes required.</p>
  */
 public class ModelParser {
 
     /**
-     * Loads the config from the filesystem path and delegates to the main overload.
-     * Retained for backward compatibility with the existing public API.
+     * Carrega o config do filesystem e delega para a sobrecarga principal.
+     * Mantido por backward compatibility com a API pública existente.
      */
     public static Workflow parser(InputStream modelStream, String externalConfigPath) {
         return parser(modelStream, ConfigLoader.loadConfig(externalConfigPath));
     }
 
     /**
-     * Main entry point. Preferred when the config is loaded from the classpath
-     * (tests, Spring Boot, embedded JARs).
+     * Ponto de entrada principal.
      *
-     * @param modelStream BPMN model as an input stream (not closed by this method)
-     * @param config      pre-loaded properties configuration
-     * @return a fully populated {@link Workflow}, possibly with inconsistencies
-     * @throws RuntimeException if the stream cannot be parsed as valid BPMN
+     * @param modelStream stream do modelo BPMN (não fechado por este método)
+     * @param config      configuração pré-carregada
+     * @return um {@link Workflow} completamente populado, possivelmente com inconsistências
      */
     public static Workflow parser(InputStream modelStream, BpmnPropertiesConfig config) {
         ParsingContext ctx = buildContext(modelStream, config);
@@ -61,17 +58,17 @@ public class ModelParser {
         return buildWorkflow(ctx);
     }
 
-    // ---------------------------------------------------------------
-    // Private helpers
-    // ---------------------------------------------------------------
+    // ── Helpers privados ───────────────────────────────────────────────
 
-    private static ParsingContext buildContext(InputStream modelStream, BpmnPropertiesConfig config) {
+    private static ParsingContext buildContext(InputStream modelStream,
+                                               BpmnPropertiesConfig config) {
         ParsingContext ctx = new ParsingContext();
         ctx.bpmnProperties = new BpmnPropertiesLoader(config);
+        ctx.engineAdapter  = EngineAdapterFactory.create(config);
         try {
             ctx.modelInstance = Bpmn.readModelFromStream(modelStream);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse BPMN model stream", e);
+            throw new RuntimeException("Falha ao parsear o stream do modelo BPMN", e);
         }
         return ctx;
     }
@@ -88,8 +85,8 @@ public class ModelParser {
         workflow.setStages(ctx.stages);
         workflow.setInconsistencies(ctx.inconsistencies);
         ctx.nodeMap.values().stream()
-                .filter(n -> n instanceof org.bpmnflow.model.ActivityNode)
-                .map(n -> (org.bpmnflow.model.ActivityNode) n)
+                .filter(n -> n instanceof ActivityNode)
+                .map(n -> (ActivityNode) n)
                 .forEach(workflow::addActivity);
         ctx.rules.forEach(workflow::addRule);
         return workflow;

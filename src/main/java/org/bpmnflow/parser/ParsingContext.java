@@ -1,8 +1,9 @@
 package org.bpmnflow.parser;
 
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
+import io.camunda.zeebe.model.bpmn.instance.SequenceFlow;
 import org.bpmnflow.model.*;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
+import org.bpmnflow.parser.engine.EngineAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,16 +11,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Mutable accumulator shared across all {@link ElementHandler} implementations
- * during a single parsing pass.
+ * Acumulador mutável compartilhado por todos os {@link ElementHandler}
+ * durante uma única passagem de parsing.
  *
- * <p>ModelParser creates one instance per call, passes it to every handler, and
- * reads the final state to build the {@link Workflow}. No handler holds a
- * reference to another handler — they communicate only through this object.</p>
+ * <p>O {@link ModelParser} cria uma instância por chamada, injeta o
+ * {@link EngineAdapter} correto, e lê o estado final para construir o
+ * {@link Workflow}. Nenhum handler guarda referência a outro handler —
+ * comunicam-se apenas através deste objeto.</p>
  */
 public class ParsingContext {
 
-    // -- Workflow header fields --
+    // ── Cabeçalho do Workflow ──────────────────────────────────────────
     String workflowName;
     String workflowId;
     String workflowVersion;
@@ -27,22 +29,23 @@ public class ParsingContext {
     String processType;
     String processSubtype;
 
-    // -- Collected elements --
-    final List<Stage>               stages        = new ArrayList<>();
-    final List<Inconsistency>       inconsistencies = new ArrayList<>();
-    final List<WorkflowRule>        rules         = new ArrayList<>();
-    final Map<String, Node>         nodeMap       = new HashMap<>();
-    final Map<SequenceFlow, Conclusion> conclusionMap = new HashMap<>();
+    // ── Elementos coletados ────────────────────────────────────────────
+    final List<Stage>                   stages          = new ArrayList<>();
+    final List<Inconsistency>           inconsistencies = new ArrayList<>();
+    final List<WorkflowRule>            rules           = new ArrayList<>();
+    final Map<String, Node>             nodeMap         = new HashMap<>();
+    final Map<SequenceFlow, Conclusion> conclusionMap   = new HashMap<>();
 
-    // -- Parsed model (set once by ModelParser before handlers run) --
+    // ── Modelo parseado (definido uma vez pelo ModelParser) ───────────
     BpmnModelInstance modelInstance;
 
-    // -- Config accessor (set once by ModelParser) --
+    // ── Acessor de config (definido uma vez pelo ModelParser) ─────────
     BpmnPropertiesLoader bpmnProperties;
 
-    // ---------------------------------------------------------------
-    // Convenience mutators (keep handler code readable)
-    // ---------------------------------------------------------------
+    // ── Adapter do engine ativo (injetado pelo ModelParser) ───────────
+    EngineAdapter engineAdapter;
+
+    // ── Mutadores de conveniência ──────────────────────────────────────
 
     public void addInconsistency(Inconsistency inconsistency) {
         inconsistencies.add(inconsistency);

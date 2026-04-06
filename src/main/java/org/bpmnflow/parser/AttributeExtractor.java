@@ -1,53 +1,42 @@
 package org.bpmnflow.parser;
 
-import org.camunda.bpm.model.bpmn.instance.BaseElement;
-import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
-import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import io.camunda.zeebe.model.bpmn.instance.BaseElement;
+import org.bpmnflow.parser.engine.EngineAdapter;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Objects.nonNull;
-
 /**
- * Utility for extracting Camunda extension properties from BPMN elements.
+ * Fachada de conveniência para extração de extension properties de elementos BPMN.
  *
- * <p>Previously a private static method on {@code ModelParser}. Extracted to
- * allow independent unit testing and reuse across all {@link ElementHandler}
- * implementations without circular dependencies.</p>
+ * <p>Toda a lógica de extração foi movida para as implementações de
+ * {@link EngineAdapter}. Esta classe é apenas um ponto de acesso estático
+ * que os handlers usam para manter o código conciso.</p>
  */
 public final class AttributeExtractor {
 
     private AttributeExtractor() {}
 
     /**
-     * Returns a map of all {@code <camunda:property>} entries defined in the
-     * extension elements of {@code element}, keyed by property name.
+     * Extrai todas as extension properties do elemento, delegando ao adapter ativo.
      *
-     * @param element the BPMN element to inspect
-     * @return a mutable map of extension property name → value; never null
+     * @param element o elemento BPMN a inspecionar
+     * @param adapter o adapter do engine configurado
+     * @return mapa nome→valor; nunca null
      */
-    public static Map<String, String> extract(BaseElement element) {
-        Map<String, String> attributes = new HashMap<>();
-        ExtensionElements extensionElements = element.getExtensionElements();
-        if (nonNull(extensionElements)) {
-            for (ModelElementInstance instance : extensionElements.getElements()) {
-                if (instance instanceof CamundaProperties camundaProperties) {
-                    for (CamundaProperty property : camundaProperties.getCamundaProperties()) {
-                        attributes.put(property.getCamundaName(), property.getCamundaValue());
-                    }
-                }
-            }
-        }
-        return attributes;
+    public static Map<String, String> extract(BaseElement element, EngineAdapter adapter) {
+        return adapter.extractProperties(element);
     }
 
     /**
-     * Convenience overload: returns a single property value or {@code null}.
+     * Retorna o valor de uma única propriedade, ou {@code null} se ausente.
+     *
+     * @param element      o elemento BPMN a inspecionar
+     * @param propertyName nome da propriedade
+     * @param adapter      o adapter do engine configurado
+     * @return o valor da propriedade, ou {@code null}
      */
-    public static String extractOne(BaseElement element, String propertyName) {
-        return extract(element).get(propertyName);
+    public static String extractOne(BaseElement element, String propertyName,
+                                    EngineAdapter adapter) {
+        return extract(element, adapter).get(propertyName);
     }
 }
