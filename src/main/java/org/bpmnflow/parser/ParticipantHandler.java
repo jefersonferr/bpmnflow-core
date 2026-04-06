@@ -1,10 +1,10 @@
 package org.bpmnflow.parser;
 
+import io.camunda.zeebe.model.bpmn.instance.*;
+import io.camunda.zeebe.model.bpmn.instance.Process;
+import io.camunda.zeebe.model.xml.instance.ModelElementInstance;
+import io.camunda.zeebe.model.xml.type.ModelElementType;
 import org.bpmnflow.model.*;
-import org.camunda.bpm.model.bpmn.instance.*;
-import org.camunda.bpm.model.bpmn.instance.Process;
-import org.camunda.bpm.model.xml.instance.ModelElementInstance;
-import org.camunda.bpm.model.xml.type.ModelElementType;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,18 +12,20 @@ import java.util.Map;
 import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
- * Handles {@link Participant} elements, their associated {@link Process},
- * and all {@link Lane} entries (which become {@link Stage} objects).
+ * Trata elementos {@link Participant}, o {@link Process} associado
+ * e todas as {@link Lane}s (que se tornam objetos {@link Stage}).
  *
- * <p>Populates: workflowName, workflowId, workflowVersion, workflowDocumentation,
- * processType, processSubtype, and the stages list in {@link ParsingContext}.</p>
+ * <p>Popula: workflowName, workflowId, workflowVersion, workflowDocumentation,
+ * processType, processSubtype e a lista de stages no {@link ParsingContext}.</p>
  */
 public class ParticipantHandler implements ElementHandler {
 
     @Override
     public void handle(ParsingContext ctx) {
-        ModelElementType participantType = ctx.modelInstance.getModel().getType(Participant.class);
-        Collection<ModelElementInstance> participants = ctx.modelInstance.getModelElementsByType(participantType);
+        ModelElementType participantType =
+                ctx.modelInstance.getModel().getType(Participant.class);
+        Collection<ModelElementInstance> participants =
+                ctx.modelInstance.getModelElementsByType(participantType);
 
         if (participants.isEmpty()) {
             if (ctx.bpmnProperties.getParticipant("presence").isRequired()) {
@@ -33,15 +35,15 @@ public class ParticipantHandler implements ElementHandler {
         }
 
         for (ModelElementInstance p : participants) {
-            Participant participant = (Participant) p;
-            handleParticipant(participant, ctx);
+            handleParticipant((Participant) p, ctx);
         }
     }
 
     private void handleParticipant(Participant participant, ParsingContext ctx) {
         ctx.workflowName = participant.getName();
 
-        if (ctx.bpmnProperties.getParticipant("name").isRequired() && isBlank(ctx.workflowName)) {
+        if (ctx.bpmnProperties.getParticipant("name").isRequired()
+                && isBlank(ctx.workflowName)) {
             ctx.addInconsistency(PARTICIPANT_NAME_MISSING.of(participant.getId()));
         }
 
@@ -52,7 +54,6 @@ public class ParticipantHandler implements ElementHandler {
             }
             return;
         }
-
         handleProcess(process, participant, ctx);
     }
 
@@ -62,8 +63,11 @@ public class ParticipantHandler implements ElementHandler {
             ctx.addInconsistency(PROCESS_ID_MISSING.of(participant.getId()));
         }
 
-        ctx.workflowVersion = process.getCamundaVersionTag();
-        if (ctx.bpmnProperties.getProcess("camunda:versionTag").isRequired() && isBlank(ctx.workflowVersion)) {
+        // Antes: process.getCamundaVersionTag() — API exclusiva C7, removida.
+        // Agora: o adapter sabe onde buscar (C7=atributo camunda:, C8=elemento zeebe:versionTag).
+        ctx.workflowVersion = ctx.engineAdapter.extractVersionTag(process);
+        if (ctx.bpmnProperties.getProcess("versionTag").isRequired()
+                && isBlank(ctx.workflowVersion)) {
             ctx.addInconsistency(PROCESS_VERSION_MISSING.of(participant.getId()));
         }
 
@@ -72,7 +76,8 @@ public class ParticipantHandler implements ElementHandler {
         handleLanes(process, ctx);
     }
 
-    private void handleDocumentation(Process process, Participant participant, ParsingContext ctx) {
+    private void handleDocumentation(Process process, Participant participant,
+                                     ParsingContext ctx) {
         Collection<Documentation> docs = process.getDocumentations();
         if (docs.isEmpty()) {
             if (ctx.bpmnProperties.getProcess("documentation").isRequired()) {
@@ -82,23 +87,27 @@ public class ParticipantHandler implements ElementHandler {
         }
         for (Documentation doc : docs) {
             ctx.workflowDocumentation = doc.getTextContent();
-            if (ctx.bpmnProperties.getProcess("documentation").isRequired() && isBlank(ctx.workflowDocumentation)) {
+            if (ctx.bpmnProperties.getProcess("documentation").isRequired()
+                    && isBlank(ctx.workflowDocumentation)) {
                 ctx.addInconsistency(PROCESS_DOCUMENTATION_MISSING.of(participant.getId()));
             }
         }
     }
 
-    private void handleExtensionProperties(Process process, Participant participant, ParsingContext ctx) {
-        Map<String, String> attrs = AttributeExtractor.extract(process);
-        attrs.putAll(AttributeExtractor.extract(participant));
+    private void handleExtensionProperties(Process process, Participant participant,
+                                           ParsingContext ctx) {
+        Map<String, String> attrs = AttributeExtractor.extract(process, ctx.engineAdapter);
+        attrs.putAll(AttributeExtractor.extract(participant, ctx.engineAdapter));
 
         ctx.processType = attrs.get("process_type");
-        if (ctx.bpmnProperties.getParticipant("process_type").isRequired() && isBlank(ctx.processType)) {
+        if (ctx.bpmnProperties.getParticipant("process_type").isRequired()
+                && isBlank(ctx.processType)) {
             ctx.addInconsistency(PROCESS_TYPE_MISSING.of(participant.getId()));
         }
 
         ctx.processSubtype = attrs.get("process_subtype");
-        if (ctx.bpmnProperties.getParticipant("process_subtype").isRequired() && isBlank(ctx.processSubtype)) {
+        if (ctx.bpmnProperties.getParticipant("process_subtype").isRequired()
+                && isBlank(ctx.processSubtype)) {
             ctx.addInconsistency(PROCESS_SUBTYPE_MISSING.of(participant.getId()));
         }
     }
@@ -119,7 +128,7 @@ public class ParticipantHandler implements ElementHandler {
     }
 
     private void handleLane(Lane lane, ParsingContext ctx) {
-        String stageCode = AttributeExtractor.extractOne(lane, "stage");
+        String stageCode = AttributeExtractor.extractOne(lane, "stage", ctx.engineAdapter);
         if (ctx.bpmnProperties.getLane("stage").isRequired() && isBlank(stageCode)) {
             ctx.addInconsistency(LANE_STAGE_MISSING.of(lane.getId()));
         }
