@@ -1,0 +1,41 @@
+Model 09:
+	Workflow{
+		name='Participant 1',
+		id='Process_18j48za',
+		version='1.0',
+		documentation='Process documentation',
+		type='PT',
+		subtype='PST',
+		stages=[
+			Lane{name='Lane B', code='B', documentation='null'},
+			Lane{name='Lane A', code='A', documentation='null'},
+			Lane{name='Lane C', code='C', documentation='null'}
+		],
+		activities=[
+			ActivityNode{abbreviation='ST-AC1', name='Task 1',
+				conclusions=[
+					Conclusion{code='03', name='Conclusion 03'},
+					Conclusion{code='01', name='Conclusion 01'},
+					Conclusion{code='02', name='Conclusion 02'}
+				]},
+			ActivityNode{abbreviation='ST-AC3', name='Task 3',
+				conclusions=[]
+			},
+			ActivityNode{abbreviation='ST-AC2', name='Task 2',
+				conclusions=[]
+			},
+			ActivityNode{abbreviation='ST-AC4', name='Task 4',
+				conclusions=[]
+			}
+		],
+		inconsistencies=[],
+		rules=[
+			WorkflowRule{type='1', source='null', target='ST-AC1', conclusion='null', processStatus='NEW'},
+			WorkflowRule{type='5', source='ST-AC1', target='ST-AC4', conclusion='03', processStatus='null'},
+			WorkflowRule{type='5', source='ST-AC1', target='ST-AC3', conclusion='02', processStatus='null'},
+			WorkflowRule{type='5', source='ST-AC1', target='ST-AC2', conclusion='01', processStatus='null'},
+			WorkflowRule{type='3', source='ST-AC3', target='null', conclusion='null', processStatus='END'},
+			WorkflowRule{type='3', source='ST-AC4', target='null', conclusion='null', processStatus='END'},
+			WorkflowRule{type='3', source='ST-AC2', target='null', conclusion='null', processStatus='END'}
+		]
+	}

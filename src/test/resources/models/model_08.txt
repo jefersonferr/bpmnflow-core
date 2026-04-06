@@ -1,0 +1,128 @@
+Model 08: 
+	Workflow{
+		name='RDCT - Outros Danos',
+		id='Process_321',
+		version='1.0.0',
+		documentation='Processo de ressarcimento de danos causados por terceiros RDCT, tipo Outros Danos.',
+		type='RD',
+		subtype='ODN',
+		stages=[
+			Lane{name='Arrecadação',code='null',documentation='null'},
+            Lane{name='Faturamento',code='null',documentation='null'},
+            Lane{name='Revisão da Negociação',code='null',documentation='null'},
+			Lane{name='Aprovação de Negociação',code='null',documentation='null'},
+			Lane{name='Orçamento',code='null',documentation='null'},
+            Lane{name='Triagem',code='TR',documentation='null'},
+            Lane{name='Cobrança',code='null',documentation='null'}
+        ],
+        activities=[
+            ActivityNode{abbreviation='TR-ADR',name='TR-ADR: Analisar dados do RDCT novo',
+                conclusions=[
+                    Conclusion{code='02',name='Dados Pendentes'},
+                    Conclusion{code='03',name='Orçamento'},
+                    Conclusion{code='01',name='Responsável não identificado'}
+                ]
+            },
+            ActivityNode{abbreviation='OR-ORC',name='OR-ORC: Orçar custos de obras e manutenção',
+                conclusions=[
+                    Conclusion{code='02',name='Custos PID'},
+                    Conclusion{code='03',name='Cobrança'},
+                    Conclusion{code='01',name='Dados Pendentes'}
+                ]
+            },
+            ActivityNode{abbreviation='OR-PID',name='OR-PID: Aguardar Dados do PID',
+                conclusions=[
+                    Conclusion{code='02',name='Cobrança'},
+                    Conclusion{code='01',name='Dados Pendentes'}
+                ]
+            },
+            ActivityNode{abbreviation='CO-NOT',name='CO-NOT: Notificar Responsável pelos Danos',
+                conclusions=[
+                    Conclusion{code='01',name='Dados Pendentes'},
+                    Conclusion{code='02',name='Envio da notificação'}
+                ]
+            },
+            ActivityNode{abbreviation='CO-NEG',name='CO-NEG: Negociar Débitos Orçados',
+                conclusions=[
+                    Conclusion{code='02',name='Pedido da aprovação'},
+                    Conclusion{code='01',name='Envio do TCD ou TQD'},
+                    Conclusion{code='03',name='Negociação sem sucesso'}
+                ]
+            },
+            ActivityNode{abbreviation='AP-NEG',name='AP-NEG: Aprovar Negociação',
+                conclusions=[
+                    Conclusion{code='01',name='Negociação aprovada'},
+                    Conclusion{code='02',name='Negociação rejeitada'},
+                    Conclusion{code='03',name='Aprovação preliminar'}
+                ]
+            },
+            ActivityNode{abbreviation='CO-TER',name='CO-TER: Enviar Termo de Negociação',
+                conclusions=[
+                    Conclusion{code='02',name='Negociação sem sucesso'},
+                    Conclusion{code='01',name='Emissão de boletos'}
+                ]
+            },
+            ActivityNode{abbreviation='RV-NEG',name='RV-NEG: Revisar Negocição',
+                conclusions=[
+                    Conclusion{code='01',name='Encerrar por falta de negociação'},
+                    Conclusion{code='02',name='Cobrança Judicial'}
+                ]
+            },
+            ActivityNode{abbreviation='AG-PAG',name='Aguardando pagamento',
+                conclusions=[
+                    Conclusion{code='03',name='Pagamento parcial'},
+                    Conclusion{code='01',name='Pagamento efetivado'},
+                    Conclusion{code='02',name='Encaminhar para cobrança judicial'}
+                ]
+            },
+            ActivityNode{abbreviation='TR-ODO',name='TR-ODO: Obter dados obrigatórios',
+                conclusions=[]
+            },
+            ActivityNode{abbreviation='TR-NEW',name='TR-NEW: Task',
+                conclusions=[
+                    Conclusion{code='02',name='null'},
+                    Conclusion{code='01',name='Responsável não identificado'}
+                ]
+            },
+            ActivityNode{abbreviation='RV-NEW',name='RV-NEW',
+                conclusions=[]
+            },
+            ActivityNode{abbreviation='RV-FIM',name='RV-FIM',
+                conclusions=[]
+            }
+        ],
+        inconsistencies=[
+            Inconsistency{type=11,description='Missing extension property 'activity' in element Activity_0fqu9s7'}
+        ],
+        rules=[
+            WorkflowRule{type='1',source='null',target='TR-ADR',conclusion='null',processStatus='NV'},
+            WorkflowRule{type='8',source='TR-ADR',target='null',conclusion='01',processStatus='EN'},
+            WorkflowRule{type='6',source='TR-ADR',target='OR-ORC',conclusion='03',processStatus='null'},
+            WorkflowRule{type='6',source='TR-ADR',target='TR-ODO',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='TR-NEW',target='OR-ORC',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='OR-ORC',target='CO-NOT',conclusion='03',processStatus='null'},
+            WorkflowRule{type='6',source='OR-ORC',target='TR-ODO',conclusion='01',processStatus='null'},
+            WorkflowRule{type='5',source='OR-ORC',target='OR-PID',conclusion='02',processStatus='null'},
+            WorkflowRule{type='8',source='TR-NEW',target='null',conclusion='01',processStatus='EN'},
+            WorkflowRule{type='6',source='OR-PID',target='TR-ODO',conclusion='01',processStatus='null'},
+            WorkflowRule{type='6',source='OR-PID',target='CO-NOT',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='RV-NEG',target='CO-NOT',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='AG-PAG',target='CO-NOT',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='CO-NOT',target='TR-ODO',conclusion='01',processStatus='null'},
+            WorkflowRule{type='5',source='CO-NOT',target='CO-NEG',conclusion='02',processStatus='null'},
+            WorkflowRule{type='5',source='CO-NEG',target='AP-NEG',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='CO-NEG',target='CO-TER',conclusion='01',processStatus='null'},
+            WorkflowRule{type='5',source='CO-NEG',target='RV-NEW',conclusion='03',processStatus='null'},
+            WorkflowRule{type='5',source='AP-NEG',target='AP-NEG',conclusion='03',processStatus='null'},
+            WorkflowRule{type='6',source='CO-TER',target='RV-NEG',conclusion='02',processStatus='null'},
+            WorkflowRule{type='5',source='CO-TER',target='null',conclusion='01',processStatus='null'},
+            WorkflowRule{type='6',source='AP-NEG',target='RV-NEG',conclusion='02',processStatus='null'},
+            WorkflowRule{type='6',source='AP-NEG',target='CO-TER',conclusion='01',processStatus='null'},
+            WorkflowRule{type='8',source='RV-NEG',target='null',conclusion='01',processStatus='EN'},
+            WorkflowRule{type='5',source='AG-PAG',target='AG-PAG',conclusion='03',processStatus='null'},
+            WorkflowRule{type='8',source='AG-PAG',target='null',conclusion='01',processStatus='EN'},
+            WorkflowRule{type='2',source='TR-ODO',target='TR-NEW',conclusion='null',processStatus='null'},
+            WorkflowRule{type='4',source='RV-NEW',target='RV-NEG',conclusion='null',processStatus='null'},
+            WorkflowRule{type='7',source='RV-FIM',target='null',conclusion='null',processStatus='EN'}
+        ]
+    }

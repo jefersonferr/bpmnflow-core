@@ -1,0 +1,24 @@
+Model 01:
+	Workflow{
+		name='null',
+		id='null',
+		version='null',
+		documentation='null',
+		type='null',
+		subtype='null',
+		stages=[],
+		activities=[
+			ActivityNode{abbreviation='ST-AC1', name='Task 1',
+				conclusions=[]
+			},
+			ActivityNode{abbreviation='ST-AC2', name='Task 2',
+				conclusions=[]
+			}
+		],
+		inconsistencies=[],
+		rules=[
+			WorkflowRule{type='1', source='null', target='ST-AC1', conclusion='null', processStatus='NEW'},
+			WorkflowRule{type='7', source='ST-AC2', target='null', conclusion='null', processStatus='END'},
+			WorkflowRule{type='2', source='ST-AC1', target='ST-AC2', conclusion='null', processStatus='null'}
+		]
+	}

@@ -1,0 +1,17 @@
+Model 02:
+	Workflow{
+		name='null',
+		id='null',
+		version='null',
+		documentation='null',
+		type='null',
+		subtype='null',
+		stages=[],
+		activities=[],
+		inconsistencies=[
+			Inconsistency{type=10, description='Missing extension property 'stage' in element Activity_0giqqwu'},
+			Inconsistency{type=11, description='Missing extension property 'activity' in element Activity_0giqqwu'},
+			Inconsistency{type=12, description='Missing extension property 'process_status' in element Event_1j1iv9l'},
+			Inconsistency{type=12, description='Missing extension property 'process_status' in element StartEvent_1'}],
+		rules=[]
+	}
