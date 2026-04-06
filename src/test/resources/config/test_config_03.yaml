@@ -1,5 +1,7 @@
 bpmn_model_parser:
 
+  engine: camunda7
+
   model_properties:
 
     participant:
@@ -15,7 +17,7 @@ bpmn_model_parser:
 
     process:
       - name: id
-      - name: camunda:versionTag
+      - name: versionTag
       - name: documentation
       - name: presence
         required: true

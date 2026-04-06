@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+    xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+    id="Definitions_c8_01"
+    targetNamespace="http://bpmn.io/schema/bpmn"
+    exporter="Camunda Modeler"
+    exporterVersion="5.x.0"
+    modeler:executionPlatform="Camunda Cloud"
+    modeler:executionPlatformVersion="8.6.0">
+
+  <!--
+    Modelo de teste para Camunda 8 — espelho de model_01.bpmn.
+    Namespace zeebe: em vez de camunda:.
+    Estrutura: Participant > Start -> Task1 -> Task2 -> End (3 regras, 1 lane)
+  -->
+
+  <bpmn:collaboration id="Collab_c8_01">
+    <bpmn:participant id="Participant_c8_01"
+                      name="Processo de Teste C8"
+                      processRef="Process_c8_01">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="process_type"    value="TEST_TYPE"    />
+          <zeebe:property name="process_subtype" value="TEST_SUBTYPE" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+    </bpmn:participant>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_c8_01" isExecutable="true">
+
+    <bpmn:extensionElements>
+      <zeebe:versionTag value="1.0" />
+    </bpmn:extensionElements>
+
+    <bpmn:documentation>Documentação do processo de teste para Camunda 8</bpmn:documentation>
+
+    <bpmn:laneSet id="LaneSet_c8_01">
+      <bpmn:lane id="Lane_c8_01" name="Análise">
+        <bpmn:extensionElements>
+          <zeebe:properties>
+            <zeebe:property name="stage" value="AN" />
+          </zeebe:properties>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>StartEvent_c8_01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_c8_01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_c8_02</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_c8_01</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_c8_01" name="Início">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="process_status" value="NEW" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_c8_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Activity_c8_01" name="Tarefa 1">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="stage"    value="AN"  />
+          <zeebe:property name="activity" value="AC1" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_c8_02</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_c8_02" name="Tarefa 2">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="stage"    value="AN"  />
+          <zeebe:property name="activity" value="AC2" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_c8_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EndEvent_c8_01" name="Fim">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="process_status" value="DONE" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_03</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_c8_01" sourceRef="StartEvent_c8_01" targetRef="Activity_c8_01" />
+    <bpmn:sequenceFlow id="Flow_c8_02" sourceRef="Activity_c8_01"   targetRef="Activity_c8_02" />
+    <bpmn:sequenceFlow id="Flow_c8_03" sourceRef="Activity_c8_02"   targetRef="EndEvent_c8_01" />
+
+  </bpmn:process>
+
+</bpmn:definitions>

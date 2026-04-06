@@ -1,6 +1,6 @@
 bpmn_model_parser:
 
-  engine: camunda7
+  engine: camunda8
 
   model_properties:
 
@@ -9,7 +9,7 @@ bpmn_model_parser:
         required: true
         extension: false
       - name: presence
-        required: true
+        required: false
         extension: false
       - name: process_type
         required: true
@@ -31,12 +31,6 @@ bpmn_model_parser:
       - name: presence
         required: true
         extension: false
-      - name: process_type
-        required: true
-        extension: true
-      - name: process_subtype
-        required: true
-        extension: true
 
     lane:
       - name: name
