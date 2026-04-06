@@ -7,14 +7,15 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 /**
- * Instancia o {@link EngineAdapter} correto com base no campo
- * {@code engine} do {@link BpmnPropertiesConfig}.
+ * Instantiates the correct {@link EngineAdapter} based on the {@code engine}
+ * field in {@link BpmnPropertiesConfig}.
  *
- * <p>É o único ponto do framework que conhece as implementações concretas
- * de {@link EngineAdapter}. Todo o restante do código trabalha com a interface.</p>
+ * <p>This is the only place in the framework that knows the concrete
+ * implementations of {@link EngineAdapter}. All other code works with
+ * the interface.</p>
  *
- * <p>Para adicionar suporte a um novo engine, basta implementar {@link EngineAdapter}
- * e adicionar um {@code case} no switch abaixo — nenhuma outra classe precisa mudar.</p>
+ * <p>To add support for a new engine, implement {@link EngineAdapter} and
+ * add a {@code case} to the switch below — no other class needs to change.</p>
  */
 public final class EngineAdapterFactory {
 
@@ -25,14 +26,15 @@ public final class EngineAdapterFactory {
 
     public static EngineAdapter create(BpmnPropertiesConfig config) {
         String engine = config.getEngine();
-        LOGGER.info(() -> "BpmnFlow — engine adapter ativo: " + engine);
-        return switch (engine) {
+        EngineAdapter adapter = switch (engine) {
             case "camunda7" -> new Camunda7EngineAdapter();
             case "camunda8" -> new Camunda8EngineAdapter();
             default -> throw new BpmnConfigException(
-                    "Engine não suportado: '" + engine + "'. " +
-                    "Valores válidos: " + supportedEngines());
+                    "Unsupported engine: '" + engine + "'. " +
+                            "Valid values: " + supportedEngines());
         };
+        LOGGER.info(() -> "BpmnFlow — active engine adapter: " + adapter.engineId());
+        return adapter;
     }
 
     public static Set<String> supportedEngines() {

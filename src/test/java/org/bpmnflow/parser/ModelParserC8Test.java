@@ -31,6 +31,7 @@ class ModelParserC8Test {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Workflow parse(String modelResource, String configResource) {
         try (InputStream model  = ModelParserC8Test.class.getResourceAsStream(modelResource);
              InputStream config = ModelParserC8Test.class.getResourceAsStream(configResource)) {
@@ -94,7 +95,7 @@ class ModelParserC8Test {
         @Test
         @DisplayName("Workflow name extraído do Participant")
         void workflowName() {
-            assertEquals("Processo de Teste C8", workflow.getName());
+            assertEquals("Test Process C8", workflow.getName());
         }
 
         @Test

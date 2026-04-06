@@ -2,23 +2,23 @@ package org.bpmnflow.parser.engine;
 
 import io.camunda.zeebe.model.bpmn.instance.BaseElement;
 import io.camunda.zeebe.model.bpmn.instance.ExtensionElements;
-import io.camunda.zeebe.model.xml.instance.DomElement;
-import io.camunda.zeebe.model.xml.instance.ModelElementInstance;
+import org.camunda.bpm.model.xml.instance.DomElement;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Adapter para Camunda 7.
+ * Adapter for Camunda 7.
  *
- * <p>Usa a API genérica de DOM ({@code getDomElement()}) da biblioteca
- * {@code zeebe-bpmn-model} para acessar elementos no namespace
- * {@code http://camunda.org/schema/1.0/bpmn}. Isso é necessário porque
- * a biblioteca Camunda 7 ({@code camunda-bpmn-model}) foi descontinuada
- * e as classes tipadas C7 ({@code CamundaProperties}, {@code CamundaProperty})
- * não existem no {@code zeebe-bpmn-model}.</p>
+ * <p>Uses the generic DOM API ({@code getDomElement()}) provided by the
+ * {@code zeebe-bpmn-model} library to access elements in the
+ * {@code http://camunda.org/schema/1.0/bpmn} namespace. This is necessary
+ * because the Camunda 7 library ({@code camunda-bpmn-model}) has reached
+ * end-of-life and its typed classes ({@code CamundaProperties},
+ * {@code CamundaProperty}) do not exist in {@code zeebe-bpmn-model}.</p>
  *
- * <h2>Estrutura XML esperada (C7)</h2>
+ * <h2>Expected XML structure (C7)</h2>
  * <pre>{@code
  * <bpmn:extensionElements>
  *   <camunda:properties>
@@ -51,7 +51,7 @@ public class Camunda7EngineAdapter implements EngineAdapter {
                 String name  = child.getAttribute(CAMUNDA7_NS, "name");
                 String value = child.getAttribute(CAMUNDA7_NS, "value");
 
-                // Fallback: alguns exportadores omitem o namespace no atributo
+                // Fallback: some exporters omit the namespace qualifier on attributes
                 if (name  == null) name  = child.getAttribute("", "name");
                 if (value == null) value = child.getAttribute("", "value");
                 if (name  != null) attributes.put(name, value);

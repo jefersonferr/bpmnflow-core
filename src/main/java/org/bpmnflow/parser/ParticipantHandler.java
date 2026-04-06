@@ -2,8 +2,8 @@ package org.bpmnflow.parser;
 
 import io.camunda.zeebe.model.bpmn.instance.*;
 import io.camunda.zeebe.model.bpmn.instance.Process;
-import io.camunda.zeebe.model.xml.instance.ModelElementInstance;
-import io.camunda.zeebe.model.xml.type.ModelElementType;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.bpmnflow.model.*;
 
 import java.util.Collection;

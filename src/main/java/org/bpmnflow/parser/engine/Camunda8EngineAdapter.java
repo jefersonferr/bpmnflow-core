@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Adapter para Camunda 8 / Zeebe.
+ * Adapter for Camunda 8 / Zeebe.
  *
- * <p>Usa a API tipada nativa do {@code zeebe-bpmn-model} para acessar
- * elementos no namespace {@code http://camunda.org/schema/zeebe/1.0}.</p>
+ * <p>Uses the native typed API from {@code zeebe-bpmn-model} to access
+ * elements in the {@code http://camunda.org/schema/zeebe/1.0} namespace.</p>
  *
- * <h2>Estrutura XML esperada (C8)</h2>
+ * <h2>Expected XML structure (C8)</h2>
  * <pre>{@code
  * <bpmn:extensionElements>
  *   <zeebe:properties>
