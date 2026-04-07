@@ -22,4 +22,4 @@ jobs:
           cache: maven
 
       - name: Build and test
-        run: mvn verify --batch-mode --no-transfer-progress
+        run: mvn verify -Dgpg.skip --batch-mode --no-transfer-progress
