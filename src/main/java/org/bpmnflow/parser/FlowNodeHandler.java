@@ -1,9 +1,9 @@
 package org.bpmnflow.parser;
 
-import org.bpmnflow.model.*;
-import org.camunda.bpm.model.bpmn.instance.*;
+import io.camunda.zeebe.model.bpmn.instance.*;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.bpm.model.xml.type.ModelElementType;
+import org.bpmnflow.model.*;
 
 import java.util.Collection;
 import java.util.Map;
@@ -11,21 +11,19 @@ import java.util.Map;
 import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
- * Handles {@link Task}, {@link StartEvent}, and {@link EndEvent} elements.
+ * Handles {@link Task}, {@link StartEvent} and {@link EndEvent} elements.
  *
  * <p>Populates: nodeMap in {@link ParsingContext} with {@link ActivityNode}
  * and {@link StartEndNode} entries.</p>
- *
- * <p>Must run after {@link ParticipantHandler} (depends on the workflow
- * object being initialised) and before {@link GatewayHandler} (which reads
- * the nodeMap).</p>
  */
 public class FlowNodeHandler implements ElementHandler {
 
     @Override
     public void handle(ParsingContext ctx) {
-        ModelElementType flowNodeType = ctx.modelInstance.getModel().getType(FlowNode.class);
-        Collection<ModelElementInstance> nodes = ctx.modelInstance.getModelElementsByType(flowNodeType);
+        ModelElementType flowNodeType =
+                ctx.modelInstance.getModel().getType(FlowNode.class);
+        Collection<ModelElementInstance> nodes =
+                ctx.modelInstance.getModelElementsByType(flowNodeType);
 
         for (ModelElementInstance node : nodes) {
             FlowNode flowNode = (FlowNode) node;
@@ -36,10 +34,10 @@ public class FlowNodeHandler implements ElementHandler {
     }
 
     private void handleTask(FlowNode flowNode, ParsingContext ctx) {
-        String id   = flowNode.getAttributeValue("id");
-        String name = flowNode.getAttributeValue("name");
+        String id            = flowNode.getAttributeValue("id");
+        String name          = flowNode.getAttributeValue("name");
         String documentation = flowNode.getAttributeValue("documentation");
-        Map<String, String> attrs = AttributeExtractor.extract(flowNode);
+        Map<String, String> attrs = AttributeExtractor.extract(flowNode, ctx.engineAdapter);
 
         boolean valid = true;
 
@@ -69,7 +67,8 @@ public class FlowNodeHandler implements ElementHandler {
         String id            = flowNode.getAttributeValue("id");
         String name          = flowNode.getAttributeValue("name");
         String documentation = flowNode.getAttributeValue("documentation");
-        String processStatus = AttributeExtractor.extractOne(flowNode, "process_status");
+        String processStatus = AttributeExtractor.extractOne(
+                flowNode, "process_status", ctx.engineAdapter);
 
         var requiredCheck = isStart
                 ? ctx.bpmnProperties.getStartEvent("process_status")

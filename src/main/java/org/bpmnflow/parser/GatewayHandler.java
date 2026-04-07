@@ -1,9 +1,9 @@
 package org.bpmnflow.parser;
 
-import org.bpmnflow.model.*;
-import org.camunda.bpm.model.bpmn.instance.*;
+import io.camunda.zeebe.model.bpmn.instance.*;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.bpm.model.xml.type.ModelElementType;
+import org.bpmnflow.model.*;
 
 import java.util.Collection;
 import java.util.Map;
@@ -23,8 +23,10 @@ public class GatewayHandler implements ElementHandler {
 
     @Override
     public void handle(ParsingContext ctx) {
-        ModelElementType gatewayType = ctx.modelInstance.getModel().getType(ExclusiveGateway.class);
-        Collection<ModelElementInstance> gateways = ctx.modelInstance.getModelElementsByType(gatewayType);
+        ModelElementType gatewayType =
+                ctx.modelInstance.getModel().getType(ExclusiveGateway.class);
+        Collection<ModelElementInstance> gateways =
+                ctx.modelInstance.getModelElementsByType(gatewayType);
 
         for (ModelElementInstance node : gateways) {
             if (node instanceof ExclusiveGateway gateway) {
@@ -48,18 +50,21 @@ public class GatewayHandler implements ElementHandler {
         }
     }
 
-    private void handleOutgoingFlow(SequenceFlow flow, ActivityNode source, ParsingContext ctx) {
+    private void handleOutgoingFlow(SequenceFlow flow, ActivityNode source,
+                                    ParsingContext ctx) {
         String conclusionName = flow.getName();
-        Map<String, String> attrs = AttributeExtractor.extract(flow);
+        Map<String, String> attrs = AttributeExtractor.extract(flow, ctx.engineAdapter);
         String conclusionCode = attrs.get("conclusion");
         boolean valid = true;
 
-        if (ctx.bpmnProperties.getSequenceFlow("name").isRequired() && isBlank(conclusionName)) {
+        if (ctx.bpmnProperties.getSequenceFlow("name").isRequired()
+                && isBlank(conclusionName)) {
             ctx.addInconsistency(SEQUENCE_FLOW_NAME_MISSING.of(flow.getId()));
             valid = false;
         }
 
-        if (ctx.bpmnProperties.getSequenceFlow("conclusion").isRequired() && isBlank(conclusionCode)) {
+        if (ctx.bpmnProperties.getSequenceFlow("conclusion").isRequired()
+                && isBlank(conclusionCode)) {
             ctx.addInconsistency(SEQUENCE_FLOW_CONCLUSION_MISSING.of(flow.getId()));
             valid = false;
         }

@@ -32,8 +32,8 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Carrega modelo e config do classpath via getResourceAsStream.
-    // Funciona em qualquer OS, qualquer working directory, qualquer CI.
+    // Loads model and config from classpath via getResourceAsStream.
+    // Works on any OS, any working directory, any CI environment.
     // ------------------------------------------------------------------
     private static Workflow parse(String modelResource, String configResource) {
         try (InputStream model  = ModelParserTest.class.getResourceAsStream(modelResource);
@@ -51,7 +51,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 01 — consistente, 3 regras.
+    // Model 01 — consistent, 3 rules.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -67,8 +67,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 0 inconsistências, 2 atividades, 3 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 0 inconsistencies, 2 activities, 3 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(0, workflow.inconsistenciesSize()),
@@ -78,7 +78,7 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Rule 1: StartEvent → Task — source null, target presente, sem conclusão")
+        @DisplayName("Rule 1: StartEvent → Task — source null, target present, no conclusion")
         void rule1_startEventToTask() {
             var rule = workflow.getRules().get(0);
             assertAll(
@@ -90,7 +90,7 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Rule 2: Task → Task — source e target presentes, sem conclusão ou status")
+        @DisplayName("Rule 2: Task → Task — source and target present, no conclusion or status")
         void rule2_taskToTask() {
             var rule = workflow.getRules().get(workflow.getRules().size() - 1);
             assertAll(
@@ -102,7 +102,7 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Rule 7: Task → EndEvent — source presente, target null, status presente")
+        @DisplayName("Rule 7: Task → EndEvent — source present, target null, status present")
         void rule7_taskToEndEvent() {
             var rule = workflow.getRules().get(1);
             assertAll(
@@ -120,7 +120,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 02 — inconsistências 10, 11 e 12.
+    // Model 02 — inconsistencies 10, 11 and 12.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -136,8 +136,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 4 inconsistências, 0 atividades, 0 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 4 inconsistencies, 0 activities, 0 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(4, workflow.inconsistenciesSize()),
@@ -153,7 +153,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 03 — consistente, 5 regras, com gateways split/merge.
+    // Model 03 — consistent, 5 rules, split/merge gateways.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -169,8 +169,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 0 inconsistências, 2 atividades, 5 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 0 inconsistencies, 2 activities, 5 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(0, workflow.inconsistenciesSize()),
@@ -180,7 +180,7 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Rule 5: Split → Task — source, target e conclusão presentes")
+        @DisplayName("Rule 5: Split → Task — source, target and conclusion present")
         void rule5_splitToTask() {
             var rule = workflow.getRules().get(2);
             assertAll(
@@ -192,7 +192,7 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Rule 8: Task → Split → EndEvent — source, conclusão e status presentes")
+        @DisplayName("Rule 8: Task → Split → EndEvent — source, conclusion and status present")
         void rule8_taskSplitToEndEvent() {
             var rule = workflow.getRules().get(4);
             assertAll(
@@ -210,7 +210,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 04 — inconsistência 14.
+    // Model 04 — inconsistency 14.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -226,8 +226,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 3 inconsistências, 2 atividades, 2 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 3 inconsistencies, 2 activities, 2 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(3, workflow.inconsistenciesSize()),
@@ -243,7 +243,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 05 — inconsistências 1, 3, 5, 6, 101, 102.
+    // Model 05 — inconsistencies 1, 3, 5, 6, 101, 102.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -259,8 +259,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 6 inconsistências, 2 atividades, 5 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 6 inconsistencies, 2 activities, 5 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(6, workflow.inconsistenciesSize()),
@@ -276,7 +276,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 06 — inconsistências 7, 8, 9, 13.
+    // Model 06 — inconsistencies 7, 8, 9, 13.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -292,8 +292,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 6 inconsistências, 1 atividade, 4 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 6 inconsistencies, 1 activity, 4 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(6, workflow.inconsistenciesSize()),
@@ -309,7 +309,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 07 — config relaxado (test_config_03).
+    // Model 07 — relaxed config (test_config_03).
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -325,8 +325,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 stages, 0 inconsistências, 2 atividades, 5 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 stages, 0 inconsistencies, 2 activities, 5 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(0, workflow.inconsistenciesSize()),
@@ -342,7 +342,7 @@ class ModelParserTest {
     }
 
     // ------------------------------------------------------------------
-    // Model 08 — modelo real com 14 atividades, Rule 04 e Rule 06.
+    // Model 08 — real-world model with 14 activities, Rule 04 and Rule 06.
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -358,8 +358,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 7 stages, 0 inconsistências, 14 atividades, 32 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 7 stages, 0 inconsistencies, 14 activities, 32 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(7, workflow.stagesSize()),
                     () -> assertEquals(0, workflow.inconsistenciesSize()),
@@ -391,8 +391,8 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Estrutura geral: 3 stages, 0 inconsistências, 4 atividades, 7 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 3 stages, 0 inconsistencies, 4 activities, 7 rules")
+        void overallStructure() {
             assertAll(
                     () -> assertEquals(3, workflow.stagesSize()),
                     () -> assertEquals(0, workflow.inconsistenciesSize()),

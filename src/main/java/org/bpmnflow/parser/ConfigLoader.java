@@ -1,5 +1,6 @@
 package org.bpmnflow.parser;
 
+import org.bpmnflow.parser.engine.EngineAdapterFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Loads and parses the BPMN properties configuration from a YAML source.
+ * Loads and parses the BPMN configuration from a YAML source.
  *
  * <p>Both overloads throw {@link BpmnConfigException} on any failure —
  * an invalid or missing config must never silently produce an empty
@@ -18,15 +19,14 @@ import java.util.*;
  */
 public class ConfigLoader {
 
+    private static final Set<String> SUPPORTED_ENGINES =
+            EngineAdapterFactory.supportedEngines();
+
     private ConfigLoader() {}
 
     /**
      * Loads the config from a filesystem path.
      * Retained for backward compatibility with the existing public API.
-     *
-     * @param externalConfigPath absolute or relative path to the YAML file
-     * @return a fully populated {@link BpmnPropertiesConfig}
-     * @throws BpmnConfigException if the file cannot be read or parsed
      */
     public static BpmnPropertiesConfig loadConfig(String externalConfigPath) {
         try (InputStream input = Files.newInputStream(Path.of(externalConfigPath))) {
@@ -39,43 +39,65 @@ public class ConfigLoader {
 
     /**
      * Loads the config from an {@link InputStream}.
-     * Preferred when the config comes from the classpath, avoiding path
-     * issues on Windows with {@code getResource().getPath()}.
-     *
-     * @param configStream the YAML content as a stream
-     * @return a fully populated {@link BpmnPropertiesConfig}
-     * @throws BpmnConfigException if the stream cannot be parsed or is structurally invalid
+     * Preferred when the config comes from the classpath (tests, Spring Boot, embedded JARs).
      */
     public static BpmnPropertiesConfig loadConfig(InputStream configStream) {
         try {
             Yaml yaml = new Yaml();
             Map<String, Object> rawConfig = yaml.load(configStream);
-            Map<String, List<ModelProperty>> extensionProperties = extractExtensionProperties(rawConfig);
-            BpmnPropertiesConfig config = new BpmnPropertiesConfig();
-            config.setExtensionProperties(extensionProperties);
-            return config;
+            return parseRawConfig(rawConfig);
         } catch (BpmnConfigException e) {
             throw e;
         } catch (Exception e) {
-            throw new BpmnConfigException(
-                    "Failed to parse BPMN config stream", e);
+            throw new BpmnConfigException("Failed to parse BPMN config stream", e);
         }
     }
 
+    // ---------------------------------------------------------------
+    // Private helpers
+    // ---------------------------------------------------------------
+
     @SuppressWarnings("unchecked")
-    private static Map<String, List<ModelProperty>> extractExtensionProperties(Map<String, Object> rawConfig) {
+    private static BpmnPropertiesConfig parseRawConfig(Map<String, Object> rawConfig) {
         if (rawConfig == null || !rawConfig.containsKey("bpmn_model_parser")) {
             throw new BpmnConfigException(
-                    "Invalid BPMN config: missing root key 'bpmn_model_parser'");
+                    "Invalid config: root key 'bpmn_model_parser' not found.");
         }
 
-        Map<String, Object> bpmnModelParser = (Map<String, Object>) rawConfig.get("bpmn_model_parser");
+        Map<String, Object> bpmnModelParser =
+                (Map<String, Object>) rawConfig.get("bpmn_model_parser");
+
+        BpmnPropertiesConfig config = new BpmnPropertiesConfig();
+
+        // Read the "engine" field.
+        // If absent → keep default "camunda7" (backward compatible).
+        // If present → validate that the value is supported.
+        if (bpmnModelParser.containsKey("engine")) {
+            String engine = String.valueOf(bpmnModelParser.get("engine")).trim();
+            if (!SUPPORTED_ENGINES.contains(engine)) {
+                throw new BpmnConfigException(
+                        "Invalid value for 'engine': '" + engine + "'. " +
+                        "Valid values: " + SUPPORTED_ENGINES);
+            }
+            config.setEngine(engine);
+        }
+
         if (!bpmnModelParser.containsKey("model_properties")) {
             throw new BpmnConfigException(
-                    "Invalid BPMN config: missing key 'model_properties' under 'bpmn_model_parser'");
+                    "Invalid config: key 'model_properties' not found " +
+                    "under 'bpmn_model_parser'.");
         }
 
-        Map<String, Object> rawProperties = (Map<String, Object>) bpmnModelParser.get("model_properties");
+        config.setExtensionProperties(extractExtensionProperties(bpmnModelParser));
+        return config;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, List<ModelProperty>> extractExtensionProperties(
+            Map<String, Object> bpmnModelParser) {
+
+        Map<String, Object> rawProperties =
+                (Map<String, Object>) bpmnModelParser.get("model_properties");
         Map<String, List<ModelProperty>> extensionProperties = new HashMap<>();
 
         for (Map.Entry<String, Object> entry : rawProperties.entrySet()) {
@@ -84,13 +106,11 @@ public class ConfigLoader {
             List<ModelProperty> properties = new ArrayList<>();
             for (Object obj : rawList) {
                 if (obj instanceof Map) {
-                    Map<String, Object> propertyMap = (Map<String, Object>) obj;
-                    properties.add(mapToModelProperty(propertyMap));
+                    properties.add(mapToModelProperty((Map<String, Object>) obj));
                 }
             }
             extensionProperties.put(key, properties);
         }
-
         return extensionProperties;
     }
 

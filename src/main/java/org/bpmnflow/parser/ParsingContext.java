@@ -1,8 +1,9 @@
 package org.bpmnflow.parser;
 
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
+import io.camunda.zeebe.model.bpmn.instance.SequenceFlow;
 import org.bpmnflow.model.*;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
+import org.bpmnflow.parser.engine.EngineAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class ParsingContext {
 
-    // -- Workflow header fields --
+    // ── Workflow header fields ─────────────────────────────────────────
     String workflowName;
     String workflowId;
     String workflowVersion;
@@ -27,22 +28,23 @@ public class ParsingContext {
     String processType;
     String processSubtype;
 
-    // -- Collected elements --
-    final List<Stage>               stages        = new ArrayList<>();
-    final List<Inconsistency>       inconsistencies = new ArrayList<>();
-    final List<WorkflowRule>        rules         = new ArrayList<>();
-    final Map<String, Node>         nodeMap       = new HashMap<>();
-    final Map<SequenceFlow, Conclusion> conclusionMap = new HashMap<>();
+    // ── Collected elements ─────────────────────────────────────────────
+    final List<Stage>                   stages          = new ArrayList<>();
+    final List<Inconsistency>           inconsistencies = new ArrayList<>();
+    final List<WorkflowRule>            rules           = new ArrayList<>();
+    final Map<String, Node>             nodeMap         = new HashMap<>();
+    final Map<SequenceFlow, Conclusion> conclusionMap   = new HashMap<>();
 
-    // -- Parsed model (set once by ModelParser before handlers run) --
+    // ── Parsed model (set once by ModelParser before handlers run) ────
     BpmnModelInstance modelInstance;
 
-    // -- Config accessor (set once by ModelParser) --
+    // ── Config accessor (set once by ModelParser) ─────────────────────
     BpmnPropertiesLoader bpmnProperties;
 
-    // ---------------------------------------------------------------
-    // Convenience mutators (keep handler code readable)
-    // ---------------------------------------------------------------
+    // ── Active engine adapter (injected by ModelParser) ───────────────
+    EngineAdapter engineAdapter;
+
+    // ── Convenience mutators ───────────────────────────────────────────
 
     public void addInconsistency(Inconsistency inconsistency) {
         inconsistencies.add(inconsistency);
