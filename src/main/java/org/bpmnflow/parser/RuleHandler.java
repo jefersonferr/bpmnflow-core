@@ -10,11 +10,11 @@ import java.util.Collection;
 import static org.bpmnflow.model.RuleType.*;
 
 /**
- * Trata elementos {@link SequenceFlow} e deriva objetos {@link WorkflowRule}
- * a partir dos padrões de topologia definidos em {@link org.bpmnflow.model.RuleType}.
+ * Handles {@link SequenceFlow} elements and derives {@link WorkflowRule} objects
+ * from the topology patterns defined in {@link org.bpmnflow.model.RuleType}.
  *
- * <p>Deve rodar por último — após {@link FlowNodeHandler} (nodeMap) e
- * {@link GatewayHandler} (conclusionMap) estarem completos.</p>
+ * <p>Must run last — after {@link FlowNodeHandler} (nodeMap) and
+ * {@link GatewayHandler} (conclusionMap) are both complete.</p>
  */
 public class RuleHandler implements ElementHandler {
 
@@ -31,13 +31,13 @@ public class RuleHandler implements ElementHandler {
     }
 
     private void applyRules(SequenceFlow flow, ParsingContext ctx) {
-        FlowNode source      = flow.getSource();
-        FlowNode target      = flow.getTarget();
-        Conclusion conclusion = ctx.getConclusion(flow);
-        String processStatus = AttributeExtractor.extractOne(
+        FlowNode source       = flow.getSource();
+        FlowNode target       = flow.getTarget();
+        Conclusion conclusion  = ctx.getConclusion(flow);
+        String processStatus  = AttributeExtractor.extractOne(
                 flow, "process_status", ctx.engineAdapter);
 
-        // Regra 1 — StartEvent → Task
+        // Rule 1 — StartEvent → Task
         if (source instanceof StartEvent && target instanceof Task) {
             String startStatus = AttributeExtractor.extractOne(
                     source, "process_status", ctx.engineAdapter);
@@ -48,14 +48,14 @@ public class RuleHandler implements ElementHandler {
             }
         }
 
-        // Regra 2 — Task → Task
+        // Rule 2 — Task → Task
         if (source instanceof Task && target instanceof Task) {
             ActivityNode src = toActivity(ctx.getNode(id(source)));
             ActivityNode tgt = toActivity(ctx.getNode(id(target)));
             ctx.addRule(new WorkflowRule(TASK_TO_TASK, src, tgt, conclusion, processStatus));
         }
 
-        // Task → ExclusiveGateway
+        // Task → ExclusiveGateway (merge or split fanout)
         if (source instanceof Task && target instanceof ExclusiveGateway merge) {
             Collection<SequenceFlow> outgoings = merge.getOutgoing();
             if (outgoings.size() == 1) {
@@ -63,7 +63,7 @@ public class RuleHandler implements ElementHandler {
                 FlowNode ruleTarget  = outgoing.getTarget();
                 ActivityNode src     = toActivity(ctx.getNode(id(source)));
 
-                // Regra 3 — Task → Merge → EndEvent
+                // Rule 3 — Task → Merge → EndEvent
                 if (ruleTarget instanceof EndEvent) {
                     String endStatus = AttributeExtractor.extractOne(
                             ruleTarget, "process_status", ctx.engineAdapter);
@@ -73,7 +73,7 @@ public class RuleHandler implements ElementHandler {
                     }
                 }
 
-                // Regra 4 — Task → Merge → Task
+                // Rule 4 — Task → Merge → Task
                 if (ruleTarget instanceof Task) {
                     ActivityNode tgt = toActivity(ctx.getNode(id(ruleTarget)));
                     ctx.addRule(new WorkflowRule(TASK_TO_MERGE_TO_TASK, src, tgt,
@@ -82,7 +82,7 @@ public class RuleHandler implements ElementHandler {
             }
         }
 
-        // Regra 5 — ExclusiveGateway(split) → Task
+        // Rule 5 — ExclusiveGateway(split) → Task
         if (source instanceof ExclusiveGateway split && target instanceof Task) {
             Collection<SequenceFlow> incomings = split.getIncoming();
             if (incomings.size() == 1) {
@@ -96,7 +96,7 @@ public class RuleHandler implements ElementHandler {
             }
         }
 
-        // Regra 6 — Split → Merge
+        // Rule 6 — Split → Merge
         if (source instanceof ExclusiveGateway splitGw
                 && target instanceof ExclusiveGateway mergeGw) {
             boolean isSplit = splitGw.getIncoming().size() == 1;
@@ -111,7 +111,7 @@ public class RuleHandler implements ElementHandler {
             }
         }
 
-        // Regra 7 — Task → EndEvent
+        // Rule 7 — Task → EndEvent
         if (source instanceof Task && target instanceof EndEvent) {
             String endStatus = AttributeExtractor.extractOne(
                     target, "process_status", ctx.engineAdapter);
@@ -122,7 +122,7 @@ public class RuleHandler implements ElementHandler {
             }
         }
 
-        // Regra 8 — Task → Split → EndEvent
+        // Rule 8 — Task → Split → EndEvent
         if (source instanceof ExclusiveGateway splitGw && target instanceof EndEvent) {
             Collection<SequenceFlow> incomings = splitGw.getIncoming();
             if (incomings.size() == 1) {

@@ -12,11 +12,11 @@ import java.util.Map;
 import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
- * Trata elementos {@link Participant}, o {@link Process} associado
- * e todas as {@link Lane}s (que se tornam objetos {@link Stage}).
+ * Handles {@link Participant} elements, their associated {@link Process},
+ * and all {@link Lane} entries (which become {@link Stage} objects).
  *
- * <p>Popula: workflowName, workflowId, workflowVersion, workflowDocumentation,
- * processType, processSubtype e a lista de stages no {@link ParsingContext}.</p>
+ * <p>Populates: workflowName, workflowId, workflowVersion, workflowDocumentation,
+ * processType, processSubtype, and the stages list in {@link ParsingContext}.</p>
  */
 public class ParticipantHandler implements ElementHandler {
 
@@ -63,8 +63,8 @@ public class ParticipantHandler implements ElementHandler {
             ctx.addInconsistency(PROCESS_ID_MISSING.of(participant.getId()));
         }
 
-        // Antes: process.getCamundaVersionTag() — API exclusiva C7, removida.
-        // Agora: o adapter sabe onde buscar (C7=atributo camunda:, C8=elemento zeebe:versionTag).
+        // Previously: process.getCamundaVersionTag() — C7-only API, removed.
+        // Now: the adapter knows where to look (C7=camunda: attribute, C8=zeebe:versionTag element).
         ctx.workflowVersion = ctx.engineAdapter.extractVersionTag(process);
         if (ctx.bpmnProperties.getProcess("versionTag").isRequired()
                 && isBlank(ctx.workflowVersion)) {

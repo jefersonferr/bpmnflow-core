@@ -9,17 +9,17 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Fachada pública para o parsing de modelos BPMN.
+ * Public facade for BPMN model parsing.
  *
- * <p>Esta classe é intencionalmente fina: lê o stream do modelo, monta o
- * {@link ParsingContext} com o {@link org.bpmnflow.parser.engine.EngineAdapter}
- * correto, e delega cada preocupação de parsing a um {@link ElementHandler}
- * dedicado. Não contém lógica de parsing própria.</p>
+ * <p>This class is intentionally thin: it reads the model stream, assembles
+ * the {@link ParsingContext} with the correct {@link org.bpmnflow.parser.engine.EngineAdapter},
+ * and delegates every parsing concern to a dedicated {@link ElementHandler}.
+ * It contains zero parsing logic of its own.</p>
  *
- * <h2>Ordem de execução dos handlers</h2>
+ * <h2>Handler execution order</h2>
  * <ol>
- *   <li>{@link ParticipantHandler} — cabeçalho do workflow, lanes → stages</li>
- *   <li>{@link FlowNodeHandler}    — tasks, eventos → nodeMap</li>
+ *   <li>{@link ParticipantHandler} — workflow header, lanes → stages</li>
+ *   <li>{@link FlowNodeHandler}    — tasks, events → nodeMap</li>
  *   <li>{@link GatewayHandler}     — exclusive gateways → conclusionMap</li>
  *   <li>{@link RuleHandler}        — sequence flows → WorkflowRules</li>
  * </ol>
@@ -27,19 +27,19 @@ import java.util.List;
 public class ModelParser {
 
     /**
-     * Carrega o config do filesystem e delega para a sobrecarga principal.
-     * Mantido por backward compatibility com a API pública existente.
+     * Loads the config from the filesystem and delegates to the main overload.
+     * Retained for backward compatibility with the existing public API.
      */
     public static Workflow parser(InputStream modelStream, String externalConfigPath) {
         return parser(modelStream, ConfigLoader.loadConfig(externalConfigPath));
     }
 
     /**
-     * Ponto de entrada principal.
+     * Main entry point.
      *
-     * @param modelStream stream do modelo BPMN (não fechado por este método)
-     * @param config      configuração pré-carregada
-     * @return um {@link Workflow} completamente populado, possivelmente com inconsistências
+     * @param modelStream BPMN model as an input stream (not closed by this method)
+     * @param config      pre-loaded properties configuration
+     * @return a fully populated {@link Workflow}, possibly with inconsistencies
      */
     public static Workflow parser(InputStream modelStream, BpmnPropertiesConfig config) {
         ParsingContext ctx = buildContext(modelStream, config);
@@ -58,7 +58,7 @@ public class ModelParser {
         return buildWorkflow(ctx);
     }
 
-    // ── Helpers privados ───────────────────────────────────────────────
+    // ── Private helpers ────────────────────────────────────────────────
 
     private static ParsingContext buildContext(InputStream modelStream,
                                                BpmnPropertiesConfig config) {
@@ -68,7 +68,7 @@ public class ModelParser {
         try {
             ctx.modelInstance = Bpmn.readModelFromStream(modelStream);
         } catch (Exception e) {
-            throw new RuntimeException("Falha ao parsear o stream do modelo BPMN", e);
+            throw new RuntimeException("Failed to parse BPMN model stream", e);
         }
         return ctx;
     }

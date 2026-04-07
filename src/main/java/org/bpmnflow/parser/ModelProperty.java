@@ -8,9 +8,9 @@ import lombok.Setter;
 public class ModelProperty {
 
     /**
-     * Instância sentinela que representa uma propriedade ausente no config.
-     * Retorna required=false e extension=false — comportamento neutro e seguro.
-     * Elimina a necessidade de null-checks nos 20 call sites de isRequired().
+     * Sentinel instance representing a property absent from the config.
+     * Returns required=false and extension=false — a safe, neutral behaviour.
+     * Eliminates the need for null-checks at the many call sites of isRequired().
      */
     public static final ModelProperty ABSENT = new ModelProperty() {
         @Override public boolean isRequired()  { return false; }

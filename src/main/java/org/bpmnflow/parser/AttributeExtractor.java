@@ -6,34 +6,33 @@ import org.bpmnflow.parser.engine.EngineAdapter;
 import java.util.Map;
 
 /**
- * Fachada de conveniência para extração de extension properties de elementos BPMN.
+ * Convenience facade for extracting extension properties from BPMN elements.
  *
- * <p>Toda a lógica de extração foi movida para as implementações de
- * {@link EngineAdapter}. Esta classe é apenas um ponto de acesso estático
- * que os handlers usam para manter o código conciso.</p>
+ * <p>All extraction logic has been moved to the {@link EngineAdapter} implementations.
+ * This class is a static access point that handlers use to keep their code concise.</p>
  */
 public final class AttributeExtractor {
 
     private AttributeExtractor() {}
 
     /**
-     * Extrai todas as extension properties do elemento, delegando ao adapter ativo.
+     * Extracts all extension properties from the element, delegating to the active adapter.
      *
-     * @param element o elemento BPMN a inspecionar
-     * @param adapter o adapter do engine configurado
-     * @return mapa nome→valor; nunca null
+     * @param element the BPMN element to inspect
+     * @param adapter the configured engine adapter
+     * @return name→value map; never null
      */
     public static Map<String, String> extract(BaseElement element, EngineAdapter adapter) {
         return adapter.extractProperties(element);
     }
 
     /**
-     * Retorna o valor de uma única propriedade, ou {@code null} se ausente.
+     * Returns the value of a single property, or {@code null} if absent.
      *
-     * @param element      o elemento BPMN a inspecionar
-     * @param propertyName nome da propriedade
-     * @param adapter      o adapter do engine configurado
-     * @return o valor da propriedade, ou {@code null}
+     * @param element      the BPMN element to inspect
+     * @param propertyName the property name
+     * @param adapter      the configured engine adapter
+     * @return the property value, or {@code null}
      */
     public static String extractOne(BaseElement element, String propertyName,
                                     EngineAdapter adapter) {

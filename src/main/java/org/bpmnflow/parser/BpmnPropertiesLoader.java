@@ -41,24 +41,24 @@ public class BpmnPropertiesLoader {
     }
 
     /**
-     * Busca uma propriedade pelo tipo de elemento e nome.
+     * Looks up a property by element type and name.
      *
-     * <p>Nunca retorna null. Quando o tipo de elemento não está mapeado no config,
-     * ou quando a propriedade nomeada não existe dentro do tipo, retorna
-     * {@link ModelProperty#ABSENT} — uma sentinela com required=false e
-     * extension=false — permitindo que os call sites façam .isRequired()
-     * diretamente sem nenhum null-check.</p>
+     * <p>Never returns null. When the element type is not mapped in the config,
+     * or when the named property does not exist within the type, returns
+     * {@link ModelProperty#ABSENT} — a sentinel with required=false and
+     * extension=false — allowing call sites to call .isRequired() directly
+     * without any null-check.</p>
      *
-     * <p>Níveis de log:
+     * <p>Log levels:
      * <ul>
-     *   <li>WARNING — tipo de elemento inteiramente ausente do config: provável erro de configuração.</li>
-     *   <li>FINE    — propriedade ausente dentro de um tipo mapeado: uso intencional e válido.</li>
+     *   <li>WARNING — element type entirely absent from config: likely a configuration error.</li>
+     *   <li>FINE    — property absent within a mapped type: intentional and valid usage.</li>
      * </ul>
      * </p>
      *
-     * @param elementType  chave do elemento BPMN (ex: "task", "lane")
-     * @param propertyName nome da propriedade (ex: "stage", "activity")
-     * @return a {@link ModelProperty} configurada, ou {@link ModelProperty#ABSENT}
+     * @param elementType  the BPMN element key (e.g. "task", "lane")
+     * @param propertyName the property name (e.g. "stage", "activity")
+     * @return the configured {@link ModelProperty}, or {@link ModelProperty#ABSENT}
      */
     private ModelProperty getPropertiesForType(String elementType, String propertyName) {
         if (config.getExtensionProperties() == null || !config.getExtensionProperties().containsKey(elementType)) {

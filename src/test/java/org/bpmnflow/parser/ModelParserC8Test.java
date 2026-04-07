@@ -11,12 +11,12 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Suíte de testes para parsing de modelos Camunda 8 (namespace zeebe:).
+ * Test suite for parsing Camunda 8 models (zeebe: namespace).
  *
- * <p>Espelho de {@link ModelParserTest} com:
+ * <p>Mirror of {@link ModelParserTest} with:
  * <ul>
- *   <li>engine: camunda8 no config</li>
- *   <li>Modelo BPMN com elementos zeebe: em vez de camunda:</li>
+ *   <li>engine: camunda8 in config</li>
+ *   <li>BPMN model using zeebe: elements instead of camunda:</li>
  * </ul>
  */
 @TestClassOrder(ClassOrderer.DisplayName.class)
@@ -37,18 +37,18 @@ class ModelParserC8Test {
              InputStream config = ModelParserC8Test.class.getResourceAsStream(configResource)) {
 
             if (model  == null) throw new IllegalArgumentException(
-                    "Modelo não encontrado no classpath: " + modelResource);
+                    "Model not found on classpath: " + modelResource);
             if (config == null) throw new IllegalArgumentException(
-                    "Config não encontrado no classpath: " + configResource);
+                    "Config not found on classpath: " + configResource);
 
             return ModelParser.parser(model, ConfigLoader.loadConfig(config));
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao parsear: " + modelResource, e);
+            throw new RuntimeException("Failed to parse: " + modelResource, e);
         }
     }
 
     // ------------------------------------------------------------------
-    // Model C8 01 — consistente, engine camunda8
+    // Model C8 01 — consistent, engine camunda8
     // ------------------------------------------------------------------
     @Nested
     @TestMethodOrder(MethodOrderer.DisplayName.class)
@@ -64,48 +64,48 @@ class ModelParserC8Test {
         }
 
         @Test
-        @DisplayName("Parse não deve lançar exceção com engine camunda8")
+        @DisplayName("Parse should not throw with engine camunda8")
         void parseWithoutException() {
             assertNotNull(workflow);
         }
 
         @Test
-        @DisplayName("Estrutura geral: 0 inconsistências, 1 stage, 2 atividades, 3 regras")
-        void estruturaGeral() {
+        @DisplayName("Overall structure: 0 inconsistencies, 1 stage, 2 activities, 3 rules")
+        void overallStructure() {
             OUT.println(workflow);
             assertAll(
                     () -> assertEquals(0, workflow.inconsistenciesSize(),
-                            "Não deve haver inconsistências"),
+                            "Should have no inconsistencies"),
                     () -> assertEquals(1, workflow.stagesSize(),
-                            "Deve ter 1 stage (lane)"),
+                            "Should have 1 stage (lane)"),
                     () -> assertEquals(2, workflow.activitiesSize(),
-                            "Deve ter 2 atividades"),
+                            "Should have 2 activities"),
                     () -> assertEquals(3, workflow.rulesSize(),
-                            "Deve ter 3 regras")
+                            "Should have 3 rules")
             );
         }
 
         @Test
-        @DisplayName("Version tag extraído via zeebe:versionTag (elemento filho)")
+        @DisplayName("Version tag extracted via zeebe:versionTag (child element)")
         void versionTagC8() {
             assertEquals("1.0", workflow.getVersion(),
-                    "Version tag deve ser '1.0' lido de <zeebe:versionTag value='1.0'/>");
+                    "Version tag should be '1.0' read from <zeebe:versionTag value='1.0'/>");
         }
 
         @Test
-        @DisplayName("Workflow name extraído do Participant")
+        @DisplayName("Workflow name extracted from Participant")
         void workflowName() {
             assertEquals("Test Process C8", workflow.getName());
         }
 
         @Test
-        @DisplayName("Workflow id extraído do Process")
+        @DisplayName("Workflow id extracted from Process")
         void workflowId() {
             assertEquals("Process_c8_01", workflow.getId());
         }
 
         @Test
-        @DisplayName("process_type e process_subtype extraídos via zeebe:property do Participant")
+        @DisplayName("process_type and process_subtype extracted via zeebe:property from Participant")
         void processTypeAndSubtype() {
             assertAll(
                     () -> assertEquals("TEST_TYPE",    workflow.getType()),
@@ -114,24 +114,24 @@ class ModelParserC8Test {
         }
 
         @Test
-        @DisplayName("Stage da lane extraído via zeebe:property name='stage'")
+        @DisplayName("Lane stage extracted via zeebe:property name='stage'")
         void laneStageCode() {
             assertEquals("AN", workflow.getStages().get(0).getCode());
         }
 
         @Test
-        @DisplayName("Activities devem ter stage e activity code preenchidos via zeebe:property")
+        @DisplayName("Activities should have stage and activity code populated via zeebe:property")
         void activitiesHaveStageAndCode() {
             workflow.getActivities().forEach(a -> assertAll(
                     () -> assertNotNull(a.getStageCode(),
-                            "stage não deve ser null em " + a.getName()),
+                            "stage must not be null in " + a.getName()),
                     () -> assertNotNull(a.getActivityCode(),
-                            "activity não deve ser null em " + a.getName())
+                            "activity must not be null in " + a.getName())
             ));
         }
 
         @Test
-        @DisplayName("Rule 1: StartEvent → Task — source null, target presente, status NEW")
+        @DisplayName("Rule 1: StartEvent → Task — source null, target present, status NEW")
         void rule1_startEventToTask() {
             var rule = workflow.getRules().get(0);
             assertAll(
@@ -143,7 +143,7 @@ class ModelParserC8Test {
         }
 
         @Test
-        @DisplayName("Rule 2: Task → Task — source e target presentes, sem conclusão")
+        @DisplayName("Rule 2: Task → Task — source and target present, no conclusion")
         void rule2_taskToTask() {
             var rule = workflow.getRules().get(1);
             assertAll(
@@ -168,14 +168,14 @@ class ModelParserC8Test {
     }
 
     // ------------------------------------------------------------------
-    // Validação do campo engine no ConfigLoader
+    // Engine field validation in ConfigLoader
     // ------------------------------------------------------------------
     @Nested
-    @DisplayName("ConfigLoader: validação do campo engine")
+    @DisplayName("ConfigLoader: engine field validation")
     class EngineValidationTests {
 
         @Test
-        @DisplayName("engine ausente no YAML → default camunda7, sem exceção")
+        @DisplayName("engine absent from YAML → default camunda7, no exception")
         void missingEngineDefaultsToCamunda7() {
             BpmnPropertiesConfig config = ConfigLoader.loadConfig(
                     ModelParserC8Test.class.getResourceAsStream("/config/test_config_01.yaml"));
@@ -184,7 +184,7 @@ class ModelParserC8Test {
         }
 
         @Test
-        @DisplayName("engine: camunda8 carregado corretamente")
+        @DisplayName("engine: camunda8 loaded correctly")
         void camunda8EngineLoadedCorrectly() {
             BpmnPropertiesConfig config = ConfigLoader.loadConfig(
                     ModelParserC8Test.class.getResourceAsStream("/config/test_config_c8_01.yaml"));
@@ -192,19 +192,19 @@ class ModelParserC8Test {
         }
 
         @Test
-        @DisplayName("engine com valor inválido → BpmnConfigException")
+        @DisplayName("engine with invalid value → BpmnConfigException")
         void invalidEngineThrowsException() {
             BpmnPropertiesConfig config = new BpmnPropertiesConfig();
             config.setEngine("flowable");
             assertThrows(
                     BpmnConfigException.class,
                     () -> org.bpmnflow.parser.engine.EngineAdapterFactory.create(config),
-                    "Engine não suportado deve lançar BpmnConfigException"
+                    "Unsupported engine should throw BpmnConfigException"
             );
         }
 
         @Test
-        @DisplayName("EngineAdapterFactory.supportedEngines() retorna camunda7 e camunda8")
+        @DisplayName("EngineAdapterFactory.supportedEngines() returns camunda7 and camunda8")
         void supportedEnginesContainsBothVersions() {
             var engines = org.bpmnflow.parser.engine.EngineAdapterFactory.supportedEngines();
             assertAll(

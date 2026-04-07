@@ -11,17 +11,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Acumulador mutável compartilhado por todos os {@link ElementHandler}
- * durante uma única passagem de parsing.
+ * Mutable accumulator shared across all {@link ElementHandler} implementations
+ * during a single parsing pass.
  *
- * <p>O {@link ModelParser} cria uma instância por chamada, injeta o
- * {@link EngineAdapter} correto, e lê o estado final para construir o
- * {@link Workflow}. Nenhum handler guarda referência a outro handler —
- * comunicam-se apenas através deste objeto.</p>
+ * <p>ModelParser creates one instance per call, passes it to every handler, and
+ * reads the final state to build the {@link Workflow}. No handler holds a
+ * reference to another handler — they communicate only through this object.</p>
  */
 public class ParsingContext {
 
-    // ── Cabeçalho do Workflow ──────────────────────────────────────────
+    // ── Workflow header fields ─────────────────────────────────────────
     String workflowName;
     String workflowId;
     String workflowVersion;
@@ -29,23 +28,23 @@ public class ParsingContext {
     String processType;
     String processSubtype;
 
-    // ── Elementos coletados ────────────────────────────────────────────
+    // ── Collected elements ─────────────────────────────────────────────
     final List<Stage>                   stages          = new ArrayList<>();
     final List<Inconsistency>           inconsistencies = new ArrayList<>();
     final List<WorkflowRule>            rules           = new ArrayList<>();
     final Map<String, Node>             nodeMap         = new HashMap<>();
     final Map<SequenceFlow, Conclusion> conclusionMap   = new HashMap<>();
 
-    // ── Modelo parseado (definido uma vez pelo ModelParser) ───────────
+    // ── Parsed model (set once by ModelParser before handlers run) ────
     BpmnModelInstance modelInstance;
 
-    // ── Acessor de config (definido uma vez pelo ModelParser) ─────────
+    // ── Config accessor (set once by ModelParser) ─────────────────────
     BpmnPropertiesLoader bpmnProperties;
 
-    // ── Adapter do engine ativo (injetado pelo ModelParser) ───────────
+    // ── Active engine adapter (injected by ModelParser) ───────────────
     EngineAdapter engineAdapter;
 
-    // ── Mutadores de conveniência ──────────────────────────────────────
+    // ── Convenience mutators ───────────────────────────────────────────
 
     public void addInconsistency(Inconsistency inconsistency) {
         inconsistencies.add(inconsistency);

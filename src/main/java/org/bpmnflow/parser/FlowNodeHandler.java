@@ -11,10 +11,10 @@ import java.util.Map;
 import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
- * Trata elementos {@link Task}, {@link StartEvent} e {@link EndEvent}.
+ * Handles {@link Task}, {@link StartEvent} and {@link EndEvent} elements.
  *
- * <p>Popula: nodeMap no {@link ParsingContext} com entradas
- * {@link ActivityNode} e {@link StartEndNode}.</p>
+ * <p>Populates: nodeMap in {@link ParsingContext} with {@link ActivityNode}
+ * and {@link StartEndNode} entries.</p>
  */
 public class FlowNodeHandler implements ElementHandler {
 

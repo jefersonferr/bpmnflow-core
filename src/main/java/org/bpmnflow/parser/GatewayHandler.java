@@ -11,10 +11,13 @@ import java.util.Map;
 import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
- * Trata elementos {@link ExclusiveGateway} no papel de Split.
+ * Handles {@link ExclusiveGateway} elements in their Split role
+ * (exactly one incoming edge = the gateway fans out to multiple paths).
  *
- * <p>Popula: conclusionMap no {@link ParsingContext} e associa
- * objetos {@link Conclusion} ao {@link ActivityNode} correspondente.</p>
+ * <p>Populates: conclusionMap in {@link ParsingContext} and attaches
+ * {@link Conclusion} objects to the corresponding {@link ActivityNode}.</p>
+ *
+ * <p>Must run after {@link FlowNodeHandler} because it reads the nodeMap.</p>
  */
 public class GatewayHandler implements ElementHandler {
 
@@ -34,7 +37,7 @@ public class GatewayHandler implements ElementHandler {
 
     private void handleGateway(ExclusiveGateway gateway, ParsingContext ctx) {
         Collection<SequenceFlow> incomings = gateway.getIncoming();
-        if (incomings.size() != 1) return;
+        if (incomings.size() != 1) return; // not a split — skip (merge is handled by RuleHandler)
 
         SequenceFlow incomingEdge = incomings.iterator().next();
         String sourceId = incomingEdge.getSource().getAttributeValue("id");

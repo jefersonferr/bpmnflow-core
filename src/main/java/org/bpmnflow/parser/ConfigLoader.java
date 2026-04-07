@@ -10,12 +10,12 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Carrega e parseia a configuração BPMN a partir de uma fonte YAML.
+ * Loads and parses the BPMN configuration from a YAML source.
  *
- * <p>Ambas as sobrecargas lançam {@link BpmnConfigException} em qualquer falha —
- * uma config inválida ou ausente nunca deve produzir silenciosamente uma
- * configuração vazia, pois isso faria o parser ignorar todas as validações
- * sem nenhum aviso.</p>
+ * <p>Both overloads throw {@link BpmnConfigException} on any failure —
+ * an invalid or missing config must never silently produce an empty
+ * configuration, as that would cause the parser to skip all validations
+ * without any indication that something went wrong.</p>
  */
 public class ConfigLoader {
 
@@ -25,21 +25,21 @@ public class ConfigLoader {
     private ConfigLoader() {}
 
     /**
-     * Carrega o config de um caminho no filesystem.
-     * Mantido por backward compatibility com a API pública existente.
+     * Loads the config from a filesystem path.
+     * Retained for backward compatibility with the existing public API.
      */
     public static BpmnPropertiesConfig loadConfig(String externalConfigPath) {
         try (InputStream input = Files.newInputStream(Path.of(externalConfigPath))) {
             return loadConfig(input);
         } catch (IOException e) {
             throw new BpmnConfigException(
-                    "Falha ao ler o arquivo de config BPMN: " + externalConfigPath, e);
+                    "Failed to read BPMN config file: " + externalConfigPath, e);
         }
     }
 
     /**
-     * Carrega o config de um {@link InputStream}.
-     * Preferível quando o config vem do classpath (testes, Spring Boot, JARs embutidos).
+     * Loads the config from an {@link InputStream}.
+     * Preferred when the config comes from the classpath (tests, Spring Boot, embedded JARs).
      */
     public static BpmnPropertiesConfig loadConfig(InputStream configStream) {
         try {
@@ -49,19 +49,19 @@ public class ConfigLoader {
         } catch (BpmnConfigException e) {
             throw e;
         } catch (Exception e) {
-            throw new BpmnConfigException("Falha ao parsear o stream de config BPMN", e);
+            throw new BpmnConfigException("Failed to parse BPMN config stream", e);
         }
     }
 
     // ---------------------------------------------------------------
-    // Helpers privados
+    // Private helpers
     // ---------------------------------------------------------------
 
     @SuppressWarnings("unchecked")
     private static BpmnPropertiesConfig parseRawConfig(Map<String, Object> rawConfig) {
         if (rawConfig == null || !rawConfig.containsKey("bpmn_model_parser")) {
             throw new BpmnConfigException(
-                    "Config inválido: chave raiz 'bpmn_model_parser' não encontrada.");
+                    "Invalid config: root key 'bpmn_model_parser' not found.");
         }
 
         Map<String, Object> bpmnModelParser =
@@ -69,23 +69,23 @@ public class ConfigLoader {
 
         BpmnPropertiesConfig config = new BpmnPropertiesConfig();
 
-        // Leitura do campo "engine"
-        // Se ausente → mantém default "camunda7" (backward compatible)
-        // Se presente → valida que o valor é suportado
+        // Read the "engine" field.
+        // If absent → keep default "camunda7" (backward compatible).
+        // If present → validate that the value is supported.
         if (bpmnModelParser.containsKey("engine")) {
             String engine = String.valueOf(bpmnModelParser.get("engine")).trim();
             if (!SUPPORTED_ENGINES.contains(engine)) {
                 throw new BpmnConfigException(
-                        "Valor inválido para 'engine': '" + engine + "'. " +
-                        "Valores válidos: " + SUPPORTED_ENGINES);
+                        "Invalid value for 'engine': '" + engine + "'. " +
+                        "Valid values: " + SUPPORTED_ENGINES);
             }
             config.setEngine(engine);
         }
 
         if (!bpmnModelParser.containsKey("model_properties")) {
             throw new BpmnConfigException(
-                    "Config inválido: chave 'model_properties' não encontrada " +
-                    "dentro de 'bpmn_model_parser'.");
+                    "Invalid config: key 'model_properties' not found " +
+                    "under 'bpmn_model_parser'.");
         }
 
         config.setExtensionProperties(extractExtensionProperties(bpmnModelParser));
