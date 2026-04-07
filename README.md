@@ -6,6 +6,8 @@
 ![Maven](https://img.shields.io/badge/Maven-3.8+-orange)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![BPMN Support](https://img.shields.io/badge/BPMN-2.0-brightgreen)
+![Camunda 7](https://img.shields.io/badge/Camunda-7-blue)
+![Camunda 8](https://img.shields.io/badge/Camunda-8-purple)
 ![CI](https://github.com/jefersonferr/bpmnflow-core/actions/workflows/ci.yml/badge.svg)
 
 ---
@@ -15,6 +17,7 @@
 - [Why BPMNFlow?](#why-bpmnflow)
 - [BPMNFlow vs Traditional BPMN Engines](#bpmnflow-vs-traditional-bpmn-engines)
 - [Quick Start](#quick-start)
+- [Engine Support](#engine-support)
 - [Extension Properties](#extension-properties)
 - [YAML Configuration](#yaml-configuration)
 - [Use Cases](#use-cases)
@@ -30,6 +33,7 @@ Most projects that adopt BPMN don't need a full workflow engine — they need to
 - **Model-as-Code** — BPMN becomes a dynamic configuration layer
 - **YAML-driven validation** — define which properties are required per element type
 - **Zero lock-in** — works with any architecture or framework
+- **Multi-engine** — parses BPMN models from both Camunda 7 and Camunda 8
 - **Spring Boot ready** — see [bpmnflow-spring-boot-starter](https://github.com/jefersonferr/bpmnflow-spring-boot-starter)
 
 ---
@@ -44,6 +48,8 @@ Most projects that adopt BPMN don't need a full workflow engine — they need to
 | Cloud-native         | High          | Medium             |
 | Model parsing        | Yes           | Yes                |
 | Setup complexity     | Low           | High               |
+| Camunda 7 models     | Yes           | Yes                |
+| Camunda 8 models     | Yes           | Yes (C8 only)      |
 
 Use BPMNFlow when you need **interpretation**, not orchestration.
 
@@ -56,7 +62,7 @@ Use BPMNFlow when you need **interpretation**, not orchestration.
 <dependency>
     <groupId>org.bpmnflow</groupId>
     <artifactId>bpmnflow-core</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -66,16 +72,81 @@ import org.bpmnflow.parser.ModelParser;
 import org.bpmnflow.model.Workflow;
 
 try (InputStream model  = Files.newInputStream(Path.of("process.bpmn"));
-InputStream config = Files.newInputStream(Path.of("bpmn-config.yaml"))) {
+     InputStream config = Files.newInputStream(Path.of("bpmn-config.yaml"))) {
 
-Workflow workflow = ModelParser.parser(model, config);
+    Workflow workflow = ModelParser.parser(model, config);
 
     System.out.println("Name:        " + workflow.getName());
-        System.out.println("Valid:       " + workflow.getInconsistencies().isEmpty());
-        System.out.println("Activities:  " + workflow.getActivities().size());
-        System.out.println("Rules:       " + workflow.getRules().size());
-        }
+    System.out.println("Valid:       " + workflow.getInconsistencies().isEmpty());
+    System.out.println("Activities:  " + workflow.getActivities().size());
+    System.out.println("Rules:       " + workflow.getRules().size());
+}
 ```
+
+---
+
+## Engine Support
+
+BPMNFlow supports BPMN models created with both **Camunda 7** and **Camunda 8** (Zeebe). The target engine is declared in the `bpmn-config.yaml` file via the `engine` field.
+
+### Camunda 7
+
+Extension properties use the `camunda:` namespace (`http://camunda.org/schema/1.0/bpmn`). The version tag is a native attribute on the `<process>` element.
+```yaml
+bpmn_model_parser:
+  engine: camunda7   # default — can be omitted for backward compatibility
+  model_properties:
+    ...
+```
+```xml
+<bpmn:task id="Task_1" name="My Task">
+  <bpmn:extensionElements>
+    <camunda:properties>
+      <camunda:property name="stage"    value="ST" />
+      <camunda:property name="activity" value="AC1" />
+    </camunda:properties>
+  </bpmn:extensionElements>
+</bpmn:task>
+
+<bpmn:process id="Process_1" camunda:versionTag="1.0">
+```
+
+### Camunda 8
+
+Extension properties use the `zeebe:` namespace (`http://camunda.org/schema/zeebe/1.0`). The version tag is a child element inside `extensionElements`.
+```yaml
+bpmn_model_parser:
+  engine: camunda8
+  model_properties:
+    ...
+```
+```xml
+<bpmn:task id="Task_1" name="My Task">
+  <bpmn:extensionElements>
+    <zeebe:properties>
+      <zeebe:property name="stage"    value="ST" />
+      <zeebe:property name="activity" value="AC1" />
+    </zeebe:properties>
+  </bpmn:extensionElements>
+</bpmn:task>
+
+<bpmn:process id="Process_1">
+  <bpmn:extensionElements>
+    <zeebe:versionTag value="1.0" />
+  </bpmn:extensionElements>
+</bpmn:process>
+```
+
+### Engine compatibility matrix
+
+| Feature                  | `camunda7`                        | `camunda8`                        |
+|--------------------------|-----------------------------------|-----------------------------------|
+| Extension properties     | `<camunda:property>`              | `<zeebe:property>`                |
+| Version tag              | `camunda:versionTag` attribute    | `<zeebe:versionTag>` element      |
+| Namespace                | `http://camunda.org/schema/1.0/bpmn` | `http://camunda.org/schema/zeebe/1.0` |
+| Backward compatible      | Yes (default when field absent)   | Requires `engine: camunda8`       |
+
+> **Note:** The `engine` field defaults to `camunda7` when omitted, ensuring full backward compatibility for existing configurations.
 
 ---
 
@@ -103,34 +174,19 @@ Extension properties let you embed custom metadata directly in BPMN elements. BP
 
 Open any element → **Properties Panel** → **Extension Properties** → click **+**.
 
-### Defining properties in BPMN XML
-```xml
-<bpmn:task id="Task_1" name="My Task">
-  <bpmn:extensionElements>
-    <camunda:properties>
-      <camunda:property name="stage"    value="YOUR_STAGE_CODE" />
-      <camunda:property name="activity" value="YOUR_ACTIVITY_CODE" />
-    </camunda:properties>
-  </bpmn:extensionElements>
-</bpmn:task>
-
-<bpmn:sequenceFlow id="Flow_1" sourceRef="Task_1" targetRef="Task_2" name="Approved">
-  <bpmn:extensionElements>
-    <camunda:properties>
-      <camunda:property name="conclusion"     value="YOUR_CONCLUSION_CODE" />
-      <camunda:property name="process_status" value="YOUR_STATUS" />
-    </camunda:properties>
-  </bpmn:extensionElements>
-</bpmn:sequenceFlow>
-```
+Works the same way in both Camunda 7 Modeler and Camunda 8 Modeler — the correct namespace is applied automatically by the tool.
 
 ---
 
 ## YAML Configuration
 
 The YAML config controls which properties are extracted and which are required. A missing required property generates an `Inconsistency` in the parsed `Workflow`.
+
+### Camunda 7 config example
 ```yaml
 bpmn_model_parser:
+
+  engine: camunda7
 
   model_properties:
 
@@ -146,7 +202,7 @@ bpmn_model_parser:
       - name: id
         required: true
         extension: false
-      - name: camunda:versionTag
+      - name: versionTag
         required: true
         extension: false
       - name: documentation
@@ -191,13 +247,26 @@ bpmn_model_parser:
         extension: true
 ```
 
+### Camunda 8 config example
+```yaml
+bpmn_model_parser:
+
+  engine: camunda8   # ← only change needed to switch engines
+
+  model_properties:
+    # same structure as Camunda 7
+    ...
+```
+
 Each entry has three fields:
 
-| Field       | Description                                                              |
-|-------------|--------------------------------------------------------------------------|
-| `name`      | Property name — either a standard XML attribute or an extension property |
-| `required`  | If `true`, absence generates an `Inconsistency`                          |
-| `extension` | If `true`, read from `<camunda:properties>`; if `false`, from the XML attribute |
+| Field       | Description                                                                        |
+|-------------|------------------------------------------------------------------------------------|
+| `name`      | Property name — either a standard XML attribute or an extension property           |
+| `required`  | If `true`, absence generates an `Inconsistency`                                    |
+| `extension` | If `true`, read from extension properties; if `false`, from the XML attribute      |
+
+> **Note:** The `versionTag` key works for both engines — BPMNFlow knows where to find it based on the `engine` field (attribute for C7, child element for C8).
 
 ---
 
