@@ -83,12 +83,12 @@ public class RuleHandler implements ElementHandler {
         }
 
         // Rule 5 — ExclusiveGateway(split) → Task
+        // Supports merge+split gateways (multiple incomings): resolves the first
+        // ActivityNode predecessor, mirroring the GatewayHandler resolution strategy.
         if (source instanceof ExclusiveGateway split && target instanceof Task) {
-            Collection<SequenceFlow> incomings = split.getIncoming();
-            if (incomings.size() == 1) {
-                FlowNode ruleSource = incomings.iterator().next().getSource();
-                ActivityNode src    = toActivity(ctx.getNode(id(ruleSource)));
-                ActivityNode tgt    = toActivity(ctx.getNode(id(target)));
+            ActivityNode src = resolveActivityPredecessor(split, ctx);
+            if (src != null) {
+                ActivityNode tgt = toActivity(ctx.getNode(id(target)));
                 if (conclusion != null) {
                     ctx.addRule(new WorkflowRule(SPLIT_TO_TASK, src, tgt,
                             conclusion, processStatus));
@@ -123,18 +123,15 @@ public class RuleHandler implements ElementHandler {
         }
 
         // Rule 8 — Task → Split → EndEvent
+        // Supports merge+split gateways: resolves the first ActivityNode predecessor.
         if (source instanceof ExclusiveGateway splitGw && target instanceof EndEvent) {
-            Collection<SequenceFlow> incomings = splitGw.getIncoming();
-            if (incomings.size() == 1) {
-                FlowNode ruleSource = incomings.iterator().next().getSource();
-                if (ruleSource instanceof Task) {
-                    String endStatus = AttributeExtractor.extractOne(
-                            target, "process_status", ctx.engineAdapter);
-                    ActivityNode src = toActivity(ctx.getNode(id(ruleSource)));
-                    if (notBlank(endStatus) && conclusion != null) {
-                        ctx.addRule(new WorkflowRule(TASK_TO_SPLIT_TO_END, src, null,
-                                conclusion, endStatus));
-                    }
+            ActivityNode src = resolveActivityPredecessor(splitGw, ctx);
+            if (src != null) {
+                String endStatus = AttributeExtractor.extractOne(
+                        target, "process_status", ctx.engineAdapter);
+                if (notBlank(endStatus) && conclusion != null) {
+                    ctx.addRule(new WorkflowRule(TASK_TO_SPLIT_TO_END, src, null,
+                            conclusion, endStatus));
                 }
             }
         }
@@ -150,5 +147,26 @@ public class RuleHandler implements ElementHandler {
 
     private static boolean notBlank(String s) {
         return s != null && !s.isBlank();
+    }
+
+    /**
+     * Resolves the primary {@link ActivityNode} predecessor of a gateway by iterating
+     * its incoming edges and returning the first whose source maps to an ActivityNode.
+     *
+     * <p>This correctly handles merge+split gateways (multiple incomings) using the
+     * same strategy as {@link GatewayHandler}: the first ActivityNode in declaration
+     * order is the "decision-making" predecessor.</p>
+     *
+     * @return the first ActivityNode predecessor, or {@code null} if none found.
+     */
+    private static ActivityNode resolveActivityPredecessor(ExclusiveGateway gateway,
+                                                           ParsingContext ctx) {
+        for (SequenceFlow incoming : gateway.getIncoming()) {
+            Node candidate = ctx.getNode(incoming.getSource().getAttributeValue("id"));
+            if (candidate instanceof ActivityNode activityNode) {
+                return activityNode;
+            }
+        }
+        return null;
     }
 }
