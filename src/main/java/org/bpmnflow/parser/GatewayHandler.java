@@ -12,12 +12,12 @@ import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
  * Handles {@link ExclusiveGateway} elements in their Split role
- * (one or more incoming edges, but at least one outgoing edge carries a conclusion).
+ * (any gateway with 2 or more outgoing edges).
  *
- * <p>A gateway acts as a <em>pure merge</em> when all outgoing flows lack conclusions
- * and is skipped. When outgoing flows carry conclusions, the handler locates the
- * single incoming edge whose direct source is an {@link ActivityNode} — the
- * "decision-making" predecessor — and attaches the conclusions to it.</p>
+ * <p>A gateway is treated as a <em>pure merge</em> when it has fewer than 2 outgoing
+ * edges (i.e. it only converges flows) and is skipped — those are handled by
+ * {@link RuleHandler}. Any gateway with 2+ outgoing edges is a split or merge+split
+ * and must have its outgoing flows validated and conclusions registered.</p>
  *
  * <p>This correctly handles the <em>merge+split</em> pattern where a gateway has
  * multiple incoming edges (e.g. from both a primary task and a retry task) but
@@ -25,8 +25,9 @@ import static org.bpmnflow.model.InconsistencyCode.*;
  * also a task) contributes no conclusion and must not block resolution of the
  * primary edge.</p>
  *
- * <p>Resolution rule: pick the <strong>first</strong> incoming edge whose source
- * is an {@link ActivityNode}. If no such edge exists the gateway is skipped.</p>
+ * <p>Resolution rule: among all incoming edges, pick the <strong>first</strong> one
+ * whose source is an {@link ActivityNode}. If no such edge exists the gateway is
+ * skipped.</p>
  *
  * <p>Must run after {@link FlowNodeHandler} because it reads the nodeMap.</p>
  */
@@ -47,13 +48,11 @@ public class GatewayHandler implements ElementHandler {
     }
 
     private void handleGateway(ExclusiveGateway gateway, ParsingContext ctx) {
-        // A gateway with no outgoing conclusions is a pure-merge — nothing to do.
-        boolean hasOutgoingConclusions = gateway.getOutgoing().stream()
-                .anyMatch(f -> {
-                    Map<String, String> a = AttributeExtractor.extract(f, ctx.engineAdapter);
-                    return !isBlank(a.get("conclusion"));
-                });
-        if (!hasOutgoingConclusions) return;
+        // A pure-merge gateway has exactly one outgoing edge (it only converges flows
+        // and does not fan out). Those are handled by RuleHandler — skip here.
+        // Any gateway with 2+ outgoing edges is a split (or merge+split) and must
+        // have its outgoing flows validated and its conclusions registered.
+        if (gateway.getOutgoing().size() < 2) return;
 
         // Find the primary ActivityNode predecessor among all incoming edges.
         // In a merge+split pattern there may be several incoming edges; we pick
