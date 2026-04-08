@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  id="Definitions_merge_split"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler" exporterVersion="5.29.0"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+  <!--
+    Model 10 — merge+split gateway regression test for GatewayHandler.
+
+    Flow:
+      Start → Task_receive_order (SC-RCV)
+                         ↓  (Flow_receive_to_gw)
+                  Gateway_order_valid  ← (Flow_calm_to_gw, no conclusion) ← Task_calm (SC-CLM)
+                    /                       \
+      Flow_needs_attention               Flow_confirmed
+      conclusion=NEEDS_ATTENTION         conclusion=ORDER_CONFIRMED
+           ↓                                  ↓
+      Task_calm (SC-CLM)                  EndEvent_done
+
+    Expected:
+      Task_receive_order.conclusions = [NEEDS_ATTENTION, ORDER_CONFIRMED]
+      Task_calm.conclusions          = []   (merge predecessor, no split)
+  -->
+  <bpmn:process id="Process_merge_split" name="Merge Split Test" isExecutable="false"
+                camunda:versionTag="1.0.0">
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property name="process_type"    value="TEST" />
+        <camunda:property name="process_subtype" value="MS"   />
+      </camunda:properties>
+    </bpmn:extensionElements>
+
+    <bpmn:startEvent id="StartEvent_1" name="Start">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="NEW" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_start_to_receive</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Task_receive_order" name="Receive Order">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage"    value="SC"  />
+          <camunda:property name="activity" value="RCV" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_start_to_receive</bpmn:incoming>
+      <bpmn:outgoing>Flow_receive_to_gw</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_calm" name="Call to Customer">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage"    value="SC"  />
+          <camunda:property name="activity" value="CLM" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_needs_attention</bpmn:incoming>
+      <bpmn:outgoing>Flow_calm_to_gw</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_order_valid" name="Order valid?">
+      <bpmn:incoming>Flow_receive_to_gw</bpmn:incoming>
+      <bpmn:incoming>Flow_calm_to_gw</bpmn:incoming>
+      <bpmn:outgoing>Flow_needs_attention</bpmn:outgoing>
+      <bpmn:outgoing>Flow_confirmed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_done" name="Done">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="CLOSED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_confirmed</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_start_to_receive"
+                       sourceRef="StartEvent_1" targetRef="Task_receive_order" />
+
+    <bpmn:sequenceFlow id="Flow_receive_to_gw"
+                       sourceRef="Task_receive_order" targetRef="Gateway_order_valid" />
+
+    <bpmn:sequenceFlow id="Flow_calm_to_gw"
+                       sourceRef="Task_calm" targetRef="Gateway_order_valid" />
+
+    <bpmn:sequenceFlow id="Flow_needs_attention" name="Needs attention"
+                       sourceRef="Gateway_order_valid" targetRef="Task_calm">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="conclusion"     value="NEEDS_ATTENTION" />
+          <camunda:property name="process_status" value="PENDING"         />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_confirmed" name="Order confirmed"
+                       sourceRef="Gateway_order_valid" targetRef="EndEvent_done">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="conclusion"     value="ORDER_CONFIRMED" />
+          <camunda:property name="process_status" value="IN_PREPARATION"  />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

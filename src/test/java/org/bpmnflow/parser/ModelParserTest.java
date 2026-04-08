@@ -406,4 +406,106 @@ class ModelParserTest {
             OUT.println("Model 09: " + workflow);
         }
     }
+
+    // ------------------------------------------------------------------
+    // Model 10 — merge+split gateway: GatewayHandler + RuleHandler regression.
+    //
+    // Gateway_order_valid has 2 incoming edges (from Task_receive_order and
+    // Task_calm) and 2 outgoing edges with conclusions (NEEDS_ATTENTION,
+    // ORDER_CONFIRMED).  Before the fix, the size-1 guard discarded the gateway
+    // entirely, leaving Task_receive_order.conclusions empty and producing no
+    // rules for the split paths.
+    // ------------------------------------------------------------------
+    @Nested
+    @TestMethodOrder(MethodOrderer.DisplayName.class)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @DisplayName("Model 10: merge+split gateway — GatewayHandler + RuleHandler regression")
+    class Model10Tests {
+
+        Workflow workflow;
+
+        @BeforeAll
+        void parseModel() {
+            workflow = parse("/models/model_10.bpmn", "/config/test_config_04.yaml");
+        }
+
+        @Test
+        @DisplayName("Overall structure: 0 inconsistencies, 2 activities")
+        void overallStructure() {
+            assertAll(
+                    () -> assertEquals(0,  workflow.inconsistenciesSize()),
+                    () -> assertEquals(2,  workflow.activitiesSize())
+            );
+        }
+
+        @Test
+        @DisplayName("SC-RCV (Receive Order) has 2 conclusions: NEEDS_ATTENTION and ORDER_CONFIRMED")
+        void receiveOrderConclusions() {
+            var rcv = workflow.getActivities().stream()
+                    .filter(a -> "SC-RCV".equals(a.getAbbreviation()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("SC-RCV not found"));
+
+            var codes = rcv.getConclusions().stream()
+                    .map(c -> c.getCode())
+                    .toList();
+
+            assertAll(
+                    () -> assertEquals(2, rcv.getConclusions().size(),
+                            "SC-RCV must have exactly 2 conclusions"),
+                    () -> assertTrue(codes.contains("NEEDS_ATTENTION"),
+                            "SC-RCV must contain NEEDS_ATTENTION"),
+                    () -> assertTrue(codes.contains("ORDER_CONFIRMED"),
+                            "SC-RCV must contain ORDER_CONFIRMED")
+            );
+        }
+
+        @Test
+        @DisplayName("SC-CLM (Call to Customer) has 0 conclusions — merge-only predecessor")
+        void callToCustomerNoConclusions() {
+            var clm = workflow.getActivities().stream()
+                    .filter(a -> "SC-CLM".equals(a.getAbbreviation()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("SC-CLM not found"));
+
+            assertEquals(0, clm.getConclusions().size(),
+                    "SC-CLM is a merge-only predecessor and must have no conclusions");
+        }
+
+        @Test
+        @DisplayName("Rule 5 (SPLIT_TO_TASK): SC-RCV → SC-CLM with NEEDS_ATTENTION")
+        void rule5_splitToTask() {
+            var rule = workflow.getRules().stream()
+                    .filter(r -> r.getType().getCode() == 5)
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("No SPLIT_TO_TASK rule found"));
+
+            assertAll(
+                    () -> assertEquals("SC-RCV", rule.getSource().getAbbreviation()),
+                    () -> assertEquals("SC-CLM", rule.getTarget().getAbbreviation()),
+                    () -> assertEquals("NEEDS_ATTENTION", rule.getConclusion().getCode())
+            );
+        }
+
+        @Test
+        @DisplayName("Rule 8 (TASK_TO_SPLIT_TO_END): SC-RCV → EndEvent with ORDER_CONFIRMED")
+        void rule8_splitToEnd() {
+            var rule = workflow.getRules().stream()
+                    .filter(r -> r.getType().getCode() == 8)
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("No TASK_TO_SPLIT_TO_END rule found"));
+
+            assertAll(
+                    () -> assertEquals("SC-RCV", rule.getSource().getAbbreviation()),
+                    () -> assertNull(rule.getTarget()),
+                    () -> assertEquals("ORDER_CONFIRMED", rule.getConclusion().getCode()),
+                    () -> assertEquals("CLOSED", rule.getProcessStatus())
+            );
+        }
+
+        @AfterAll
+        void printWorkflow() {
+            OUT.println("Model 10: " + workflow);
+        }
+    }
 }
