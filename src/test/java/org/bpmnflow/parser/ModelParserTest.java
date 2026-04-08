@@ -1,5 +1,6 @@
 package org.bpmnflow.parser;
 
+import org.bpmnflow.model.Conclusion;
 import org.bpmnflow.model.Workflow;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -447,7 +448,7 @@ class ModelParserTest {
                     .orElseThrow(() -> new AssertionError("SC-RCV not found"));
 
             var codes = rcv.getConclusions().stream()
-                    .map(c -> c.getCode())
+                    .map(Conclusion::getCode)
                     .toList();
 
             assertAll(
