@@ -5,7 +5,9 @@ import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.bpmnflow.model.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.bpmnflow.model.RuleType.*;
 
@@ -83,11 +85,12 @@ public class RuleHandler implements ElementHandler {
         }
 
         // Rule 5 — ExclusiveGateway(split) → Task
-        // Supports merge+split gateways (multiple incomings): resolves the first
-        // ActivityNode predecessor, mirroring the GatewayHandler resolution strategy.
+        // Supports merge+split gateways (multiple incomings): resolves ALL
+        // ActivityNode predecessors and generates a SPLIT_TO_TASK rule for each,
+        // so that every activity sharing the gateway receives the correct transitions.
         if (source instanceof ExclusiveGateway split && target instanceof Task) {
-            ActivityNode src = resolveActivityPredecessor(split, ctx);
-            if (src != null) {
+            List<ActivityNode> predecessors = resolveAllActivityPredecessors(split, ctx);
+            for (ActivityNode src : predecessors) {
                 ActivityNode tgt = toActivity(ctx.getNode(id(target)));
                 if (conclusion != null) {
                     ctx.addRule(new WorkflowRule(SPLIT_TO_TASK, src, tgt,
@@ -123,10 +126,11 @@ public class RuleHandler implements ElementHandler {
         }
 
         // Rule 8 — Task → Split → EndEvent
-        // Supports merge+split gateways: resolves the first ActivityNode predecessor.
+        // Supports merge+split gateways: resolves ALL ActivityNode predecessors
+        // and generates a TASK_TO_SPLIT_TO_END rule for each.
         if (source instanceof ExclusiveGateway splitGw && target instanceof EndEvent) {
-            ActivityNode src = resolveActivityPredecessor(splitGw, ctx);
-            if (src != null) {
+            List<ActivityNode> predecessors = resolveAllActivityPredecessors(splitGw, ctx);
+            for (ActivityNode src : predecessors) {
                 String endStatus = AttributeExtractor.extractOne(
                         target, "process_status", ctx.engineAdapter);
                 if (notBlank(endStatus) && conclusion != null) {
@@ -150,12 +154,33 @@ public class RuleHandler implements ElementHandler {
     }
 
     /**
+     * Resolves ALL {@link ActivityNode} predecessors of a gateway by iterating
+     * its incoming edges and collecting every source that maps to an ActivityNode.
+     *
+     * <p>Used for merge+split gateways where multiple activities (e.g. SC-RCV and
+     * SC-CLM) share the same gateway and must each receive the full set of
+     * outgoing rules.</p>
+     *
+     * @return list of all ActivityNode predecessors; empty if none found.
+     */
+    private static List<ActivityNode> resolveAllActivityPredecessors(
+            ExclusiveGateway gateway, ParsingContext ctx) {
+        List<ActivityNode> result = new ArrayList<>();
+        for (SequenceFlow incoming : gateway.getIncoming()) {
+            Node candidate = ctx.getNode(incoming.getSource().getAttributeValue("id"));
+            if (candidate instanceof ActivityNode activityNode) {
+                result.add(activityNode);
+            }
+        }
+        return result;
+    }
+
+    /**
      * Resolves the primary {@link ActivityNode} predecessor of a gateway by iterating
      * its incoming edges and returning the first whose source maps to an ActivityNode.
      *
-     * <p>This correctly handles merge+split gateways (multiple incomings) using the
-     * same strategy as {@link GatewayHandler}: the first ActivityNode in declaration
-     * order is the "decision-making" predecessor.</p>
+     * <p>Retained for Rule 6 (Split → Merge) which needs only one predecessor
+     * to identify the source activity of the combined path.</p>
      *
      * @return the first ActivityNode predecessor, or {@code null} if none found.
      */
