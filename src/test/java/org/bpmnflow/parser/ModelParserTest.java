@@ -461,45 +461,74 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("SC-CLM (Call to Customer) has 0 conclusions — merge-only predecessor")
-        void callToCustomerNoConclusions() {
+        @DisplayName("SC-CLM (Call to Customer) has 2 conclusions — shared merge+split predecessor")
+        void callToCustomerConclusions() {
             var clm = workflow.getActivities().stream()
                     .filter(a -> "SC-CLM".equals(a.getAbbreviation()))
                     .findFirst()
                     .orElseThrow(() -> new AssertionError("SC-CLM not found"));
 
-            assertEquals(0, clm.getConclusions().size(),
-                    "SC-CLM is a merge-only predecessor and must have no conclusions");
-        }
-
-        @Test
-        @DisplayName("Rule 5 (SPLIT_TO_TASK): SC-RCV → SC-CLM with NEEDS_ATTENTION")
-        void rule5_splitToTask() {
-            var rule = workflow.getRules().stream()
-                    .filter(r -> r.getType().getCode() == 5)
-                    .findFirst()
-                    .orElseThrow(() -> new AssertionError("No SPLIT_TO_TASK rule found"));
+            var codes = clm.getConclusions().stream()
+                    .map(c -> c.getCode())
+                    .toList();
 
             assertAll(
-                    () -> assertEquals("SC-RCV", rule.getSource().getAbbreviation()),
-                    () -> assertEquals("SC-CLM", rule.getTarget().getAbbreviation()),
-                    () -> assertEquals("NEEDS_ATTENTION", rule.getConclusion().getCode())
+                    () -> assertEquals(2, clm.getConclusions().size(),
+                            "SC-CLM must have exactly 2 conclusions — same as SC-RCV (shared gateway)"),
+                    () -> assertTrue(codes.contains("NEEDS_ATTENTION"),
+                            "SC-CLM must contain NEEDS_ATTENTION"),
+                    () -> assertTrue(codes.contains("ORDER_CONFIRMED"),
+                            "SC-CLM must contain ORDER_CONFIRMED")
             );
         }
 
         @Test
-        @DisplayName("Rule 8 (TASK_TO_SPLIT_TO_END): SC-RCV → EndEvent with ORDER_CONFIRMED")
-        void rule8_splitToEnd() {
-            var rule = workflow.getRules().stream()
-                    .filter(r -> r.getType().getCode() == 8)
-                    .findFirst()
-                    .orElseThrow(() -> new AssertionError("No TASK_TO_SPLIT_TO_END rule found"));
+        @DisplayName("Rule 5 (SPLIT_TO_TASK): SC-RCV → SC-CLM and SC-CLM → SC-CLM with NEEDS_ATTENTION")
+        void rule5_splitToTask() {
+            var rules = workflow.getRules().stream()
+                    .filter(r -> r.getType().getCode() == 5
+                            && "NEEDS_ATTENTION".equals(r.getConclusion() != null
+                            ? r.getConclusion().getCode() : null))
+                    .toList();
+
+            assertEquals(2, rules.size(),
+                    "Must have 2 SPLIT_TO_TASK rules with NEEDS_ATTENTION — one per predecessor");
+
+            var sources = rules.stream()
+                    .map(r -> r.getSource().getAbbreviation())
+                    .toList();
 
             assertAll(
-                    () -> assertEquals("SC-RCV", rule.getSource().getAbbreviation()),
-                    () -> assertNull(rule.getTarget()),
-                    () -> assertEquals("ORDER_CONFIRMED", rule.getConclusion().getCode()),
-                    () -> assertEquals("CLOSED", rule.getProcessStatus())
+                    () -> assertTrue(sources.contains("SC-RCV"),
+                            "SC-RCV must be a source of NEEDS_ATTENTION SPLIT_TO_TASK"),
+                    () -> assertTrue(sources.contains("SC-CLM"),
+                            "SC-CLM must be a source of NEEDS_ATTENTION SPLIT_TO_TASK (loop)")
+            );
+        }
+
+        @Test
+        @DisplayName("Rule 8 (TASK_TO_SPLIT_TO_END): SC-RCV and SC-CLM → EndEvent with ORDER_CONFIRMED")
+        void rule8_splitToEnd() {
+            var rules = workflow.getRules().stream()
+                    .filter(r -> r.getType().getCode() == 8)
+                    .toList();
+
+            assertEquals(2, rules.size(),
+                    "Must have 2 TASK_TO_SPLIT_TO_END rules — one per predecessor");
+
+            var sources = rules.stream()
+                    .map(r -> r.getSource().getAbbreviation())
+                    .toList();
+
+            assertAll(
+                    () -> assertTrue(sources.contains("SC-RCV"),
+                            "SC-RCV must have TASK_TO_SPLIT_TO_END with ORDER_CONFIRMED"),
+                    () -> assertTrue(sources.contains("SC-CLM"),
+                            "SC-CLM must have TASK_TO_SPLIT_TO_END with ORDER_CONFIRMED"),
+                    () -> rules.forEach(r -> assertEquals("ORDER_CONFIRMED",
+                            r.getConclusion().getCode())),
+                    () -> rules.forEach(r -> assertEquals("CLOSED",
+                            r.getProcessStatus()))
             );
         }
 

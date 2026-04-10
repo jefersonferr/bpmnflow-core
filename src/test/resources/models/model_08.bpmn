@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1tiu5qk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.31.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1tiu5qk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
   <bpmn:collaboration id="Collaboration_1l7ucbc">
     <bpmn:extensionElements />
-    <bpmn:participant id="Particpant_123" name="RDCT - Outros Danos" processRef="Process_321" />
+    <bpmn:participant id="Particpant_123" name="Other Damages" processRef="Process_321" />
   </bpmn:collaboration>
-  <bpmn:process id="Process_321" name="Processo RD-ODN" isExecutable="false" camunda:versionTag="1.0.0">
-    <bpmn:documentation>Processo de ressarcimento de danos causados por terceiros RDCT, tipo Outros Danos.</bpmn:documentation>
+  <bpmn:process id="Process_321" name="Process RD-ODN" isExecutable="false" camunda:versionTag="1.0.0">
+    <bpmn:documentation>Third-party damage reimbursement process RDCT, type Other Damages.</bpmn:documentation>
     <bpmn:extensionElements>
       <camunda:properties>
         <camunda:property name="process_type" value="RD" />
@@ -13,19 +13,19 @@
       </camunda:properties>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_0ysu0dp">
-      <bpmn:lane id="Lane_14jy6yc" name="Arrecadação">
+      <bpmn:lane id="Lane_14jy6yc" name="Collection">
         <bpmn:extensionElements />
         <bpmn:flowNodeRef>Activity_15x3flf</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0ohvme4</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1lr1kbi</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_0bc89j0" name="Faturamento">
+      <bpmn:lane id="Lane_0bc89j0" name="Billing">
         <bpmn:flowNodeRef>Activity_0fqu9s7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_16z4hc9</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0f2j6pl</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0aisjuz</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_1kwfsqp" name="Revisão da Negociação">
+      <bpmn:lane id="Lane_1kwfsqp" name="Negotiation Review">
         <bpmn:flowNodeRef>Gateway_0hckwu6</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_156rud7</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0qn1acp</bpmn:flowNodeRef>
@@ -34,18 +34,18 @@
         <bpmn:flowNodeRef>Activity_0i8e4tp</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_095ptv3</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_02mkrga" name="Aprovação de Negociação">
+      <bpmn:lane id="Lane_02mkrga" name="Negotiation Approval">
         <bpmn:flowNodeRef>Activity_0m062ux</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1xcypby</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_1fq0wi6" name="Orçamento">
+      <bpmn:lane id="Lane_1fq0wi6" name="Budget">
         <bpmn:flowNodeRef>Gateway_1b7xr3u</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1cn6rcu</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_09wx3az</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0f4jxsr</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1vls4yv</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_0rq21io" name="Triagem">
+      <bpmn:lane id="Lane_0rq21io" name="Triage">
         <bpmn:extensionElements>
           <camunda:properties>
             <camunda:property name="stage" value="TR" />
@@ -60,7 +60,7 @@
         <bpmn:flowNodeRef>Gateway_0kfp453</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1n9f5ak</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_025xylb" name="Cobrança">
+      <bpmn:lane id="Lane_025xylb" name="Collection">
         <bpmn:extensionElements />
         <bpmn:flowNodeRef>Gateway_08m92ts</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_17vg0un</bpmn:flowNodeRef>
@@ -74,7 +74,7 @@
         <bpmn:flowNodeRef>Event_02g55a5</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="s1" name="Início">
+    <bpmn:startEvent id="s1" name="Start">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="process_status" value="NV" />
@@ -89,7 +89,7 @@
       <bpmn:outgoing>Flow_0ifnqnz</bpmn:outgoing>
       <bpmn:outgoing>Flow_07f0bb9</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_0101spn" name="TR-ADR: Analisar dados do RDCT novo">
+    <bpmn:task id="Activity_0101spn" name="TR-ADR: Analyze new RDCT data">
       <bpmn:documentation>1234</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:properties>
@@ -105,7 +105,7 @@
       <bpmn:incoming>Flow_0v3jz0b</bpmn:incoming>
       <bpmn:outgoing>Flow_1ahw4pd</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1cn6rcu" name="OR-ORC: Orçar custos de obras e manutenção">
+    <bpmn:task id="Activity_1cn6rcu" name="OR-ORC: Estimate and maintenance costs">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="OR" />
@@ -121,7 +121,7 @@
       <bpmn:outgoing>Flow_16lfsu1</bpmn:outgoing>
       <bpmn:outgoing>Flow_14sjpll</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="Event_174823p" name="Encerrado">
+    <bpmn:endEvent id="Event_174823p" name="Closed">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="process_status" value="EN" />
@@ -135,7 +135,7 @@
       <bpmn:outgoing>Flow_1ew87an</bpmn:outgoing>
       <bpmn:outgoing>Flow_1m8pk0u</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1vls4yv" name="OR-PID: Aguardar Dados do PID">
+    <bpmn:task id="Activity_1vls4yv" name="OR-PID: Await PID Data">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="OR" />
@@ -152,7 +152,7 @@
       <bpmn:incoming>Flow_0piirbk</bpmn:incoming>
       <bpmn:outgoing>Flow_00ggcky</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_17vg0un" name="CO-NOT: Notificar Responsável pelos Danos">
+    <bpmn:task id="Activity_17vg0un" name="CO-NOT: Notify Party Responsible for Damages">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="CO" />
@@ -162,7 +162,7 @@
       <bpmn:incoming>Flow_00ggcky</bpmn:incoming>
       <bpmn:outgoing>Flow_0njyri9</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:dataObjectReference id="DataObjectReference_0mfp1j2" name="Notificação de danos ao patrimônio" dataObjectRef="DataObject_1glzk9i" />
+    <bpmn:dataObjectReference id="DataObjectReference_0mfp1j2" name="Property damage notification" dataObjectRef="DataObject_1glzk9i" />
     <bpmn:dataObject id="DataObject_1glzk9i" />
     <bpmn:exclusiveGateway id="Gateway_0b8ycps">
       <bpmn:incoming>Flow_0njyri9</bpmn:incoming>
@@ -175,7 +175,7 @@
       <bpmn:outgoing>Flow_0pwv9cd</bpmn:outgoing>
       <bpmn:outgoing>Flow_1yh6f5k</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1d49fs4" name="CO-NEG: Negociar Débitos Orçados">
+    <bpmn:task id="Activity_1d49fs4" name="CO-NEG: Negotiate Budgeted Debts">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="CO" />
@@ -185,7 +185,7 @@
       <bpmn:incoming>Flow_1po9xv0</bpmn:incoming>
       <bpmn:outgoing>Flow_06huosm</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_0m062ux" name="AP-NEG: Aprovar Negociação">
+    <bpmn:task id="Activity_0m062ux" name="AP-NEG: Approve Negotiation">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="AP" />
@@ -201,7 +201,7 @@
       <bpmn:outgoing>Flow_1pt6oyc</bpmn:outgoing>
       <bpmn:outgoing>Flow_1ag3a0q</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1ucemo1" name="CO-TER: Enviar Termo de Negociação">
+    <bpmn:task id="Activity_1ucemo1" name="CO-TER: Send Negotiation Agreement">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="CO" />
@@ -228,7 +228,7 @@
       <bpmn:incoming>Flow_16knyre</bpmn:incoming>
       <bpmn:outgoing>Flow_06kcmzv</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_156rud7" name="RV-NEG: Revisar Negocição">
+    <bpmn:task id="Activity_156rud7" name="RV-NEG: Review Negotiation">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="RV" />
@@ -243,7 +243,7 @@
       <bpmn:outgoing>Flow_1pvnqc4</bpmn:outgoing>
       <bpmn:outgoing>Flow_1jws2j3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="Event_1i08tdb" name="Encerrado">
+    <bpmn:endEvent id="Event_1i08tdb" name="Closed">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="process_status" value="EN" />
@@ -251,9 +251,9 @@
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1pvnqc4</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:dataObjectReference id="DataObjectReference_0qyjdq7" name="Faturas" dataObjectRef="DataObject_1hk53fq" />
+    <bpmn:dataObjectReference id="DataObjectReference_0qyjdq7" name="Invoices" dataObjectRef="DataObject_1hk53fq" />
     <bpmn:dataObject id="DataObject_1hk53fq" />
-    <bpmn:task id="Activity_0fqu9s7" name="FT-FAT: Emitir Faturas">
+    <bpmn:task id="Activity_0fqu9s7" name="FT-FAT: Issue Invoices">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="FT" />
@@ -263,7 +263,7 @@
       <bpmn:incoming>Flow_1ag3a0q</bpmn:incoming>
       <bpmn:outgoing>Flow_0v05gmj</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="Event_16z4hc9" name="Encerrado">
+    <bpmn:endEvent id="Event_16z4hc9" name="Closed">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="process_status" value="EN" />
@@ -277,7 +277,7 @@
       <bpmn:outgoing>Flow_0i1nz8v</bpmn:outgoing>
       <bpmn:outgoing>Flow_0jlsolw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_15x3flf" name="Aguardando pagamento">
+    <bpmn:task id="Activity_15x3flf" name="Awaiting Payment">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="AG" />
@@ -288,7 +288,7 @@
       <bpmn:incoming>Flow_0naev0y</bpmn:incoming>
       <bpmn:outgoing>Flow_1qt900k</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="Event_0ohvme4" name="Encerrado">
+    <bpmn:endEvent id="Event_0ohvme4" name="Closed">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="process_status" value="EN" />
@@ -302,7 +302,7 @@
       <bpmn:outgoing>Flow_10h57vg</bpmn:outgoing>
       <bpmn:outgoing>Flow_0piirbk</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:dataObjectReference id="DataObjectReference_1f0pg1o" name="TCD ou TQD" dataObjectRef="DataObject_0vvqsm9" />
+    <bpmn:dataObjectReference id="DataObjectReference_1f0pg1o" name="TCD or TQD" dataObjectRef="DataObject_0vvqsm9" />
     <bpmn:dataObject id="DataObject_0vvqsm9" />
     <bpmn:exclusiveGateway id="Gateway_00w6qhh">
       <bpmn:extensionElements />
@@ -312,7 +312,7 @@
       <bpmn:incoming>Flow_1lbbpke</bpmn:incoming>
       <bpmn:outgoing>Flow_01dvv6j</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_0nlpqpd" name="TR-ODO: Obter dados obrigatórios">
+    <bpmn:task id="Activity_0nlpqpd" name="TR-ODO: Obtain mandatory data">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="stage" value="TR" />
@@ -353,21 +353,21 @@
     <bpmn:sequenceFlow id="Flow_1hwnswc" sourceRef="Activity_0101spn" targetRef="Gateway_13urjno">
       <bpmn:extensionElements />
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_07f0bb9" name="Responsável não identificado" sourceRef="Gateway_13urjno" targetRef="Event_174823p">
+    <bpmn:sequenceFlow id="Flow_07f0bb9" name="Responsible party not identified" sourceRef="Gateway_13urjno" targetRef="Event_174823p">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0ifnqnz" name="Orçamento" sourceRef="Gateway_13urjno" targetRef="Gateway_1b7xr3u">
+    <bpmn:sequenceFlow id="Flow_0ifnqnz" name="Budget" sourceRef="Gateway_13urjno" targetRef="Gateway_1b7xr3u">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="03" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_01ij4qx" name="Dados Pendentes" sourceRef="Gateway_13urjno" targetRef="Gateway_00w6qhh">
+    <bpmn:sequenceFlow id="Flow_01ij4qx" name="Pending Data" sourceRef="Gateway_13urjno" targetRef="Gateway_00w6qhh">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
@@ -383,28 +383,28 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ahw4pd" sourceRef="Gateway_1b7xr3u" targetRef="Activity_1cn6rcu" />
     <bpmn:sequenceFlow id="Flow_0e9fpyf" sourceRef="Activity_1cn6rcu" targetRef="Gateway_09wx3az" />
-    <bpmn:sequenceFlow id="Flow_16lfsu1" name="Cobrança" sourceRef="Gateway_09wx3az" targetRef="Gateway_08m92ts">
+    <bpmn:sequenceFlow id="Flow_16lfsu1" name="Collection" sourceRef="Gateway_09wx3az" targetRef="Gateway_08m92ts">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="03" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_14sjpll" name="Dados Pendentes" sourceRef="Gateway_09wx3az" targetRef="Gateway_00w6qhh">
+    <bpmn:sequenceFlow id="Flow_14sjpll" name="Pending Data" sourceRef="Gateway_09wx3az" targetRef="Gateway_00w6qhh">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1f7yviw" name="Custos PID" sourceRef="Gateway_09wx3az" targetRef="Activity_1vls4yv">
+    <bpmn:sequenceFlow id="Flow_1f7yviw" name="PID Costs" sourceRef="Gateway_09wx3az" targetRef="Activity_1vls4yv">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_03elsv6" name="Responsável não identificado" sourceRef="Gateway_0kfp453" targetRef="Event_174823p">
+    <bpmn:sequenceFlow id="Flow_03elsv6" name="Responsible party not identified" sourceRef="Gateway_0kfp453" targetRef="Event_174823p">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
@@ -412,28 +412,28 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1rpsfa0" sourceRef="Activity_1vls4yv" targetRef="Gateway_0f4jxsr" />
-    <bpmn:sequenceFlow id="Flow_1m8pk0u" name="Dados Pendentes" sourceRef="Gateway_0f4jxsr" targetRef="Gateway_00w6qhh">
+    <bpmn:sequenceFlow id="Flow_1m8pk0u" name="Pending Data" sourceRef="Gateway_0f4jxsr" targetRef="Gateway_00w6qhh">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ew87an" name="Cobrança" sourceRef="Gateway_0f4jxsr" targetRef="Gateway_08m92ts">
+    <bpmn:sequenceFlow id="Flow_1ew87an" name="Collection" sourceRef="Gateway_0f4jxsr" targetRef="Gateway_08m92ts">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1jws2j3" name="Cobrança Judicial" sourceRef="Gateway_0qn1acp" targetRef="Gateway_08m92ts">
+    <bpmn:sequenceFlow id="Flow_1jws2j3" name="Legal Collection" sourceRef="Gateway_0qn1acp" targetRef="Gateway_08m92ts">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0piirbk" name="Encaminhar para cobrança judicial" sourceRef="Gateway_1lr1kbi" targetRef="Gateway_08m92ts">
+    <bpmn:sequenceFlow id="Flow_0piirbk" name="Forward to legal collection" sourceRef="Gateway_1lr1kbi" targetRef="Gateway_08m92ts">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
@@ -442,14 +442,14 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_00ggcky" sourceRef="Gateway_08m92ts" targetRef="Activity_17vg0un" />
     <bpmn:sequenceFlow id="Flow_0njyri9" sourceRef="Activity_17vg0un" targetRef="Gateway_0b8ycps" />
-    <bpmn:sequenceFlow id="Flow_1lbbpke" name="Dados Pendentes" sourceRef="Gateway_0b8ycps" targetRef="Gateway_00w6qhh">
+    <bpmn:sequenceFlow id="Flow_1lbbpke" name="Pending Data" sourceRef="Gateway_0b8ycps" targetRef="Gateway_00w6qhh">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1po9xv0" name="Envio da notificação" sourceRef="Gateway_0b8ycps" targetRef="Activity_1d49fs4">
+    <bpmn:sequenceFlow id="Flow_1po9xv0" name="Notification sent" sourceRef="Gateway_0b8ycps" targetRef="Activity_1d49fs4">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
@@ -457,28 +457,28 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_06huosm" sourceRef="Activity_1d49fs4" targetRef="Gateway_03jdf6x" />
-    <bpmn:sequenceFlow id="Flow_0ovm2q0" name="Pedido da aprovação" sourceRef="Gateway_03jdf6x" targetRef="Activity_0m062ux">
+    <bpmn:sequenceFlow id="Flow_0ovm2q0" name="Approval request" sourceRef="Gateway_03jdf6x" targetRef="Activity_0m062ux">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0pwv9cd" name="Envio do TCD ou TQD" sourceRef="Gateway_03jdf6x" targetRef="Gateway_0uficxo">
+    <bpmn:sequenceFlow id="Flow_0pwv9cd" name="Send TCD or TQD" sourceRef="Gateway_03jdf6x" targetRef="Gateway_0uficxo">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1yh6f5k" name="Negociação sem sucesso" sourceRef="Gateway_03jdf6x" targetRef="Activity_0g3qgkr">
+    <bpmn:sequenceFlow id="Flow_1yh6f5k" name="Unsuccessful negotiation" sourceRef="Gateway_03jdf6x" targetRef="Activity_0g3qgkr">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="03" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0zjt3c7" name="Aprovação preliminar" sourceRef="Gateway_1xcypby" targetRef="Activity_0m062ux">
+    <bpmn:sequenceFlow id="Flow_0zjt3c7" name="Preliminary approval" sourceRef="Gateway_1xcypby" targetRef="Activity_0m062ux">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="03" />
@@ -487,14 +487,14 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0cht0re" sourceRef="Activity_0m062ux" targetRef="Gateway_1xcypby" />
     <bpmn:sequenceFlow id="Flow_0qkos04" sourceRef="Activity_1ucemo1" targetRef="Gateway_0hsnqhj" />
-    <bpmn:sequenceFlow id="Flow_1pt6oyc" name="Negociação sem sucesso" sourceRef="Gateway_0hsnqhj" targetRef="Gateway_0hckwu6">
+    <bpmn:sequenceFlow id="Flow_1pt6oyc" name="Unsuccessful negotiation" sourceRef="Gateway_0hsnqhj" targetRef="Gateway_0hckwu6">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ag3a0q" name="Emissão de boletos" sourceRef="Gateway_0hsnqhj" targetRef="Activity_0fqu9s7">
+    <bpmn:sequenceFlow id="Flow_1ag3a0q" name="Invoice issuance" sourceRef="Gateway_0hsnqhj" targetRef="Activity_0fqu9s7">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
@@ -502,14 +502,14 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ubiveh" sourceRef="Gateway_0uficxo" targetRef="Activity_1ucemo1" />
-    <bpmn:sequenceFlow id="Flow_0oud9il" name="Negociação rejeitada" sourceRef="Gateway_1xcypby" targetRef="Gateway_0hckwu6">
+    <bpmn:sequenceFlow id="Flow_0oud9il" name="Negotiation rejected" sourceRef="Gateway_1xcypby" targetRef="Gateway_0hckwu6">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0infxl2" name="Negociação aprovada" sourceRef="Gateway_1xcypby" targetRef="Gateway_0uficxo">
+    <bpmn:sequenceFlow id="Flow_0infxl2" name="Negotiation approved" sourceRef="Gateway_1xcypby" targetRef="Gateway_0uficxo">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
@@ -518,7 +518,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_06kcmzv" sourceRef="Gateway_0hckwu6" targetRef="Activity_156rud7" />
     <bpmn:sequenceFlow id="Flow_1j7um95" sourceRef="Activity_156rud7" targetRef="Gateway_0qn1acp" />
-    <bpmn:sequenceFlow id="Flow_1pvnqc4" name="Encerrar por falta de negociação" sourceRef="Gateway_0qn1acp" targetRef="Event_1i08tdb">
+    <bpmn:sequenceFlow id="Flow_1pvnqc4" name="Close due to lack of negotiation" sourceRef="Gateway_0qn1acp" targetRef="Event_1i08tdb">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
@@ -526,21 +526,21 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0v05gmj" sourceRef="Activity_0fqu9s7" targetRef="Gateway_0f2j6pl" />
-    <bpmn:sequenceFlow id="Flow_0jxdvzx" name="Fatura não emitida" sourceRef="Gateway_0f2j6pl" targetRef="Event_16z4hc9">
+    <bpmn:sequenceFlow id="Flow_0jxdvzx" name="Invoice not issued" sourceRef="Gateway_0f2j6pl" targetRef="Event_16z4hc9">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0i1nz8v" name="Fatura emitida" sourceRef="Gateway_0f2j6pl" targetRef="Activity_15x3flf">
+    <bpmn:sequenceFlow id="Flow_0i1nz8v" name="Invoice issued" sourceRef="Gateway_0f2j6pl" targetRef="Activity_15x3flf">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="02" />
         </camunda:properties>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0naev0y" name="Pagamento parcial" sourceRef="Gateway_1lr1kbi" targetRef="Activity_15x3flf">
+    <bpmn:sequenceFlow id="Flow_0naev0y" name="Partial payment" sourceRef="Gateway_1lr1kbi" targetRef="Activity_15x3flf">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="03" />
@@ -548,7 +548,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1qt900k" sourceRef="Activity_15x3flf" targetRef="Gateway_1lr1kbi" />
-    <bpmn:sequenceFlow id="Flow_10h57vg" name="Pagamento efetivado" sourceRef="Gateway_1lr1kbi" targetRef="Event_0ohvme4">
+    <bpmn:sequenceFlow id="Flow_10h57vg" name="Payment completed" sourceRef="Gateway_1lr1kbi" targetRef="Event_0ohvme4">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="01" />
@@ -596,7 +596,7 @@
       <bpmn:incoming>Flow_0jlsolw</bpmn:incoming>
       <bpmn:outgoing>Flow_0n2cdws</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_0jlsolw" name="Teste final" sourceRef="Gateway_0f2j6pl" targetRef="Activity_0i8e4tp">
+    <bpmn:sequenceFlow id="Flow_0jlsolw" name="Final test" sourceRef="Gateway_0f2j6pl" targetRef="Activity_0i8e4tp">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property name="conclusion" value="03" />
