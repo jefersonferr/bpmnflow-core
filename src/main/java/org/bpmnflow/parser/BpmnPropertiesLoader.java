@@ -41,6 +41,31 @@ public class BpmnPropertiesLoader {
     }
 
     /**
+     * Accessor for serviceTask-level validation rules.
+     *
+     * <p>Reads from the {@code serviceTask} section of the YAML config.
+     * Recognised property names: {@code connectorId}, {@code endpoint},
+     * {@code method}.</p>
+     *
+     * <p>Example YAML:</p>
+     * <pre>
+     * serviceTask:
+     *   - name: connectorId
+     *     required: true
+     *     extension: false
+     *   - name: endpoint
+     *     required: true
+     *     extension: false
+     *   - name: method
+     *     required: true
+     *     extension: false
+     * </pre>
+     */
+    public ModelProperty getServiceTask(String propertyName) {
+        return getPropertiesForType("serviceTask", propertyName);
+    }
+
+    /**
      * Looks up a property by element type and name.
      *
      * <p>Never returns null. When the element type is not mapped in the config,

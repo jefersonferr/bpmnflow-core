@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+    xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+    id="Definitions_api_c7"
+    targetNamespace="http://bpmn.io/schema/bpmn"
+    exporter="Camunda Modeler"
+    exporterVersion="5.45.0"
+    modeler:executionPlatform="Camunda Platform"
+    modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:collaboration id="Collab_api_c7">
+    <bpmn:participant id="Participant_api_c7"
+                      name="Pizza Delivery API C7"
+                      processRef="Process_api_c7">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_type"    value="FD" />
+          <camunda:property name="process_subtype" value="DLV" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:participant>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_api_c7" isExecutable="true"
+                camunda:versionTag="1.0">
+    <bpmn:documentation>Pizza delivery process with API service tasks — Camunda 7.</bpmn:documentation>
+
+    <bpmn:laneSet id="LaneSet_api_c7">
+      <bpmn:lane id="Lane_clerk_c7" name="Clerk">
+        <bpmn:extensionElements>
+          <camunda:properties>
+            <camunda:property name="stage" value="SC" />
+          </camunda:properties>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>StartEvent_api_c7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_api_payment_c7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_receive_order_c7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_api_tracking_c7</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_api_c7</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_api_c7" name="Order Placed">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="NEW" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_c7_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="Task_api_payment_c7"
+                      name="Authorize Payment [API]"
+                      implementation="##unspecified">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage"    value="SC" />
+          <camunda:property name="activity" value="PMT_AUTH" />
+        </camunda:properties>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.pagamentos.com/v1/authorize</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{"customer_id":"${cliente_id}","amount":"${valor_total}"}</camunda:inputParameter>
+            <camunda:inputParameter name="x-api-version">2</camunda:inputParameter>
+            <camunda:outputParameter name="pagamento_txn_id">${response.transaction_id}</camunda:outputParameter>
+            <camunda:outputParameter name="pagamento_status">${response.status}</camunda:outputParameter>
+          </camunda:inputOutput>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c7_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_c7_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:task id="Task_receive_order_c7" name="Receive Order">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage"    value="SC" />
+          <camunda:property name="activity" value="RCV" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c7_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_c7_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:serviceTask id="Task_api_tracking_c7"
+                      name="Create Delivery Order [API]"
+                      implementation="##unspecified">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage"    value="SC" />
+          <camunda:property name="activity" value="TRK_CREATE" />
+        </camunda:properties>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.logistica.com/v1/deliveries</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="payload">{"order_id":"${pedido_id}","address":"${endereco}"}</camunda:inputParameter>
+            <camunda:outputParameter name="tracking_id">${response.tracking_id}</camunda:outputParameter>
+            <camunda:outputParameter name="tempo_estimado">${response.estimated_minutes}</camunda:outputParameter>
+          </camunda:inputOutput>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c7_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_c7_04</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="EndEvent_api_c7" name="Delivery Dispatched">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="DISPATCHED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c7_04</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_c7_01" sourceRef="StartEvent_api_c7"     targetRef="Task_api_payment_c7" />
+    <bpmn:sequenceFlow id="Flow_c7_02" sourceRef="Task_api_payment_c7"   targetRef="Task_receive_order_c7" />
+    <bpmn:sequenceFlow id="Flow_c7_03" sourceRef="Task_receive_order_c7" targetRef="Task_api_tracking_c7" />
+    <bpmn:sequenceFlow id="Flow_c7_04" sourceRef="Task_api_tracking_c7"  targetRef="EndEvent_api_c7" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_api_c7">
+    <bpmndi:BPMNPlane id="BPMNPlane_api_c7" bpmnElement="Collab_api_c7">
+      <bpmndi:BPMNShape id="Participant_api_c7_di" bpmnElement="Participant_api_c7" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="820" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_clerk_c7_di" bpmnElement="Lane_clerk_c7" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="790" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_api_c7_di" bpmnElement="StartEvent_api_c7">
+        <dc:Bounds x="222" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_api_payment_c7_di" bpmnElement="Task_api_payment_c7">
+        <dc:Bounds x="310" y="140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_receive_order_c7_di" bpmnElement="Task_receive_order_c7">
+        <dc:Bounds x="490" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_api_tracking_c7_di" bpmnElement="Task_api_tracking_c7">
+        <dc:Bounds x="650" y="140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_api_c7_di" bpmnElement="EndEvent_api_c7">
+        <dc:Bounds x="832" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_c7_01_di" bpmnElement="Flow_c7_01">
+        <di:waypoint x="258" y="180" /><di:waypoint x="310" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c7_02_di" bpmnElement="Flow_c7_02">
+        <di:waypoint x="430" y="180" /><di:waypoint x="490" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c7_03_di" bpmnElement="Flow_c7_03">
+        <di:waypoint x="590" y="180" /><di:waypoint x="650" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c7_04_di" bpmnElement="Flow_c7_04">
+        <di:waypoint x="770" y="180" /><di:waypoint x="832" y="180" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
