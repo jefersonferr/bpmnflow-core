@@ -5,13 +5,10 @@ import lombok.Getter;
 /**
  * Specialisation of {@link ActivityNode} for ServiceTask elements
  * that declare an API call via a connector extension.
- *
  * Created by FlowNodeHandler when the active EngineAdapter returns
  * a non-null ApiHandlerDefinition for a ServiceTask. Plain Task elements
  * continue to produce plain ActivityNode instances.
- *
  * Usage by the execution engine:
- *
  *   if (node instanceof ApiActivityNode apiNode) {
  *       ApiHandlerDefinition def = apiNode.getApiHandler();
  *       apiHandlerProvider.execute(def, instanceVariables);

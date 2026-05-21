@@ -82,7 +82,7 @@ public class FlowNodeHandler implements ElementHandler {
                                    FlowNode flowNode, ParsingContext ctx) {
 
         ApiHandlerDefinition apiHandler =
-                ctx.engineAdapter.extractApiHandler((BaseElement) flowNode);
+                ctx.engineAdapter.extractApiHandler(flowNode);
 
         if (apiHandler == null) {
             // ServiceTask without connector/taskDefinition — treat as plain ActivityNode

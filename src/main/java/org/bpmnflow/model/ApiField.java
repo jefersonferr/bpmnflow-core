@@ -6,7 +6,6 @@ import lombok.Getter;
  * Immutable key-value pair that represents a single entry in one of the
  * three collections of {@link ApiHandlerDefinition}:
  * {@code taskHeaders}, {@code inputMappings}, or {@code outputMappings}.
- *
  * Semantics by collection:
  *   taskHeaders   → key = header name,        value = static header value
  *   inputMappings → C7: key = inputParameter name, value = text content
