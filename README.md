@@ -19,6 +19,7 @@
 - [Quick Start](#quick-start)
 - [Engine Support](#engine-support)
 - [Extension Properties](#extension-properties)
+- [API Handler Service Tasks](#api-handler-service-tasks)
 - [YAML Configuration](#yaml-configuration)
 - [Use Cases](#use-cases)
 - [What's Next](#whats-next)
@@ -34,6 +35,7 @@ Most projects that adopt BPMN don't need a full workflow engine — they need to
 - **YAML-driven validation** — define which properties are required per element type
 - **Zero lock-in** — works with any architecture or framework
 - **Multi-engine** — parses BPMN models from both Camunda 7 and Camunda 8
+- **API handler support** — service tasks carry API call definitions parsed directly from the model
 - **Spring Boot ready** — see [bpmnflow-spring-boot-starter](https://github.com/jefersonferr/bpmnflow-spring-boot-starter)
 
 ---
@@ -62,7 +64,7 @@ Use BPMNFlow when you need **interpretation**, not orchestration.
 <dependency>
     <groupId>org.bpmnflow</groupId>
     <artifactId>bpmnflow-core</artifactId>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 
@@ -81,6 +83,16 @@ try (InputStream model  = Files.newInputStream(Path.of("process.bpmn"));
     System.out.println("Activities:  " + workflow.getActivities().size());
     System.out.println("Rules:       " + workflow.getRules().size());
 }
+```
+
+### Listing API handler activities
+```java
+workflow.listActivities().forEach(activity -> {
+    if (activity instanceof ApiActivityNode api) {
+        ApiHandlerDefinition handler = api.getApiHandler();
+        System.out.println(api.getAbbreviation() + " -> " + handler.getEndpoint());
+    }
+});
 ```
 
 ---
@@ -139,12 +151,12 @@ bpmn_model_parser:
 
 ### Engine compatibility matrix
 
-| Feature                  | `camunda7`                        | `camunda8`                        |
-|--------------------------|-----------------------------------|-----------------------------------|
-| Extension properties     | `<camunda:property>`              | `<zeebe:property>`                |
-| Version tag              | `camunda:versionTag` attribute    | `<zeebe:versionTag>` element      |
-| Namespace                | `http://camunda.org/schema/1.0/bpmn` | `http://camunda.org/schema/zeebe/1.0` |
-| Backward compatible      | Yes (default when field absent)   | Requires `engine: camunda8`       |
+| Feature                  | `camunda7`                           | `camunda8`                                |
+|--------------------------|--------------------------------------|-------------------------------------------|
+| Extension properties     | `<camunda:property>`                 | `<zeebe:property>`                        |
+| Version tag              | `camunda:versionTag` attribute       | `<zeebe:versionTag>` element              |
+| Namespace                | `http://camunda.org/schema/1.0/bpmn` | `http://camunda.org/schema/zeebe/1.0`     |
+| Backward compatible      | Yes (default when field absent)      | Requires `engine: camunda8`               |
 
 > **Note:** The `engine` field defaults to `camunda7` when omitted, ensuring full backward compatibility for existing configurations.
 
@@ -158,23 +170,81 @@ Extension properties let you embed custom metadata directly in BPMN elements. BP
 
 ### Supported elements and properties
 
-| Element         | Property          | Description                                        |
-|-----------------|-------------------|----------------------------------------------------|
+| Element         | Property          | Description                                              |
+|-----------------|-------------------|----------------------------------------------------------|
 | `Participant`   | `process_type`    | Process classification — any value defined in your model |
-| `Participant`   | `process_subtype` | Process subtype — any value defined in your model  |
-| `Lane`          | `stage`           | Stage code for the lane                            |
-| `Task`          | `stage`           | Stage the task belongs to                          |
-| `Task`          | `activity`        | Activity code within the stage                     |
-| `StartEvent`    | `process_status`  | Initial process status                             |
-| `EndEvent`      | `process_status`  | Final process status                               |
-| `SequenceFlow`  | `conclusion`      | Conclusion code that triggers this path            |
-| `SequenceFlow`  | `process_status`  | Resulting status after the transition              |
+| `Participant`   | `process_subtype` | Process subtype — any value defined in your model        |
+| `Lane`          | `stage`           | Stage code for the lane                                  |
+| `Task`          | `stage`           | Stage the task belongs to                                |
+| `Task`          | `activity`        | Activity code within the stage                           |
+| `StartEvent`    | `process_status`  | Initial process status                                   |
+| `EndEvent`      | `process_status`  | Final process status                                     |
+| `SequenceFlow`  | `conclusion`      | Conclusion code that triggers this path                  |
+| `SequenceFlow`  | `process_status`  | Resulting status after the transition                    |
 
 ### Defining properties in Camunda Modeler
 
 Open any element → **Properties Panel** → **Extension Properties** → click **+**.
 
 Works the same way in both Camunda 7 Modeler and Camunda 8 Modeler — the correct namespace is applied automatically by the tool.
+
+---
+
+## API Handler Service Tasks
+
+Since `3.2.0`, BPMNFlow can parse service tasks configured with API call definitions directly in the `.bpmn` file. When a service task carries a `bpmnflow:apiHandler` extension element, the parser produces an `ApiActivityNode` instead of a plain `ActivityNode`.
+
+### Model types
+
+| Type | Description |
+|---|---|
+| `ApiActivityNode` | Extends `ActivityNode`. Adds an `apiHandler` field of type `ApiHandlerDefinition`. |
+| `ApiHandlerDefinition` | Holds the full API call configuration: `connectorId`, `endpoint`, `method`, `payloadTemplate`, output mapping entries, and task headers. |
+| `ApiField` | Generic `{ key, value }` record used for ordered input/output mappings and headers. |
+
+### BPMN definition example
+
+```xml
+<bpmn:serviceTask id="SC-PMT" name="Process Payment">
+  <bpmn:extensionElements>
+    <camunda:properties>
+      <camunda:property name="stage"    value="SC" />
+      <camunda:property name="activity" value="PMT" />
+    </camunda:properties>
+    <bpmnflow:apiHandler
+        connectorId="payment-api"
+        endpoint="https://api.example.com/v1/charge"
+        method="POST"
+        payloadTemplate='{"amount": ${{var.amount}}, "currency": "BRL"}'>
+      <bpmnflow:outputMapping variable="txn_id"  jsonPath="$.transaction_id" />
+      <bpmnflow:outputMapping variable="status"  jsonPath="$.status" />
+    </bpmnflow:apiHandler>
+  </bpmn:extensionElements>
+</bpmn:serviceTask>
+```
+
+### Accessing API handler data
+
+```java
+Workflow workflow = ModelParser.parser(model, config);
+
+workflow.listActivities().forEach(activity -> {
+    if (activity instanceof ApiActivityNode api) {
+        ApiHandlerDefinition h = api.getApiHandler();
+        System.out.printf("%-10s  %s %s%n",
+            api.getAbbreviation(), h.getMethod(), h.getEndpoint());
+
+        h.getOutputMappings().forEach(m ->
+            System.out.printf("  %s <- %s%n", m.getKey(), m.getValue()));
+    }
+});
+```
+
+### Jackson serialization
+
+`bpmnflow-core` has **no Jackson dependency**. Polymorphic serialization of `ApiActivityNode` is handled by `bpmnflow-spring-boot-starter` (v3.2.x+) via a Jackson MixIn — no annotation leaks into the core library.
+
+Plain `ActivityNode` consumers that do not check for `ApiActivityNode` continue to work without modification.
 
 ---
 
@@ -260,11 +330,11 @@ bpmn_model_parser:
 
 Each entry has three fields:
 
-| Field       | Description                                                                        |
-|-------------|------------------------------------------------------------------------------------|
-| `name`      | Property name — either a standard XML attribute or an extension property           |
-| `required`  | If `true`, absence generates an `Inconsistency`                                    |
-| `extension` | If `true`, read from extension properties; if `false`, from the XML attribute      |
+| Field       | Description                                                                   |
+|-------------|-------------------------------------------------------------------------------|
+| `name`      | Property name — either a standard XML attribute or an extension property      |
+| `required`  | If `true`, absence generates an `Inconsistency`                               |
+| `extension` | If `true`, read from extension properties; if `false`, from the XML attribute |
 
 > **Note:** The `versionTag` key works for both engines — BPMNFlow knows where to find it based on the `engine` field (attribute for C7, child element for C8).
 
@@ -293,14 +363,18 @@ Query the model at runtime instead of hardcoding transitions:
 // Which rules are triggered when a case enters a given status?
 workflow.getRules().stream()
     .filter(r -> myStatus.equals(r.getProcessStatus()))
-        .forEach(r -> System.out.println("Entry activity: " + r.getTarget().getAbbreviation()));
+    .forEach(r -> System.out.println("Entry activity: " + r.getTarget().getAbbreviation()));
 ```
 
 ### 3. Lightweight microservices orchestration
 
 Use the parsed rules to drive event publishing — each activity maps to a Kafka or RabbitMQ topic, and the next step is resolved from the model after each response.
 
-### 4. Self-documenting processes
+### 4. API-driven service task execution
+
+Use `ApiActivityNode` to execute HTTP calls defined in the BPMN without hardcoding endpoints in Java. The provider pattern in `bpmnflow-process-runtime` selects the right implementation at startup — pure Java (`SpringApiHandlerProvider`), PL/SQL (`PlSqlApiHandlerProvider`), MCP, or Oracle Select AI — while the same `.bpmn` file runs unmodified on any database.
+
+### 5. Self-documenting processes
 
 Generate up-to-date process documentation directly from the BPMN model — activities, stages, conclusions, and transitions are always in sync with the diagram.
 
@@ -309,6 +383,8 @@ Generate up-to-date process documentation directly from the BPMN model — activ
 ## What's Next
 
 - Support for additional BPMN element types (parallel gateways, subprocesses)
+- `PlSqlApiHandlerProvider` — execute API calls via `UTL_HTTP` on Oracle 19c+
+- `SelectAiApiHandlerProvider` — `DBMS_CLOUD_AI_AGENT` on Oracle 26ai Autonomous
 - Streaming-based parsing for large models
 - Optional result caching
 - Improved mapping of extracted properties to custom Java objects
