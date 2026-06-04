@@ -1,0 +1,84 @@
+bpmn_model_parser:
+
+  engine: camunda8
+
+  model_properties:
+
+    participant:
+      - name: name
+        required: true
+        extension: false
+      - name: process_type
+        required: true
+        extension: true
+      - name: process_subtype
+        required: true
+        extension: true
+
+    process:
+      - name: id
+        required: true
+        extension: false
+      - name: versionTag
+        required: true
+        extension: false
+      - name: documentation
+        required: true
+        extension: false
+      - name: presence
+        required: true
+        extension: false
+
+    lane:
+      - name: name
+        required: true
+        extension: false
+      - name: presence
+        required: true
+        extension: false
+      - name: stage
+        required: true
+        extension: true
+
+    task:
+      - name: name
+        required: true
+        extension: false
+      - name: stage
+        required: true
+        extension: true
+      - name: activity
+        required: true
+        extension: true
+
+    serviceTask:
+      - name: connectorId
+        required: true
+        extension: false
+      - name: endpoint
+        required: true
+        extension: false
+      - name: method
+        required: true
+        extension: false
+
+    startEvent:
+      - name: process_status
+        required: true
+        extension: true
+
+    endEvent:
+      - name: process_status
+        required: true
+        extension: true
+
+    sequenceFlow:
+      - name: name
+        required: false
+        extension: false
+      - name: conclusion
+        required: false
+        extension: true
+      - name: process_status
+        required: false
+        extension: true

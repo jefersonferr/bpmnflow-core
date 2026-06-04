@@ -36,6 +36,11 @@ public enum InconsistencyCode {
     SEQUENCE_FLOW_NAME_MISSING      (13, "Missing attribute 'name' in element %s"),
     SEQUENCE_FLOW_CONCLUSION_MISSING(14, "Missing extension property 'conclusion' in element %s"),
 
+    // --- ServiceTask / ApiHandler ---
+    API_CONNECTOR_ID_MISSING        (15, "Missing connector id (camunda:connectorId / zeebe:taskDefinition type) in element %s"),
+    API_ENDPOINT_MISSING            (16, "Missing API endpoint (url inputParameter / endpoint taskHeader) in element %s"),
+    API_METHOD_MISSING              (17, "Missing HTTP method (method inputParameter / method taskHeader) in element %s"),
+
     // --- Structural ---
     PARTICIPANT_REQUIRED            (100, "At least one element 'Participant' is required"),
     DOCUMENTATION_REQUIRED          (101, "At least one nested element 'Documentation' is required in element %s"),
@@ -50,16 +55,10 @@ public enum InconsistencyCode {
         this.messageTemplate = messageTemplate;
     }
 
-    /**
-     * Creates an {@link Inconsistency} with no extra arguments (structural codes).
-     */
     public Inconsistency of() {
         return new Inconsistency(code, messageTemplate);
     }
 
-    /**
-     * Creates an {@link Inconsistency} formatting the message with the given element id.
-     */
     public Inconsistency of(String elementId) {
         return new Inconsistency(code, messageTemplate.formatted(elementId));
     }

@@ -11,10 +11,20 @@ import java.util.Map;
 import static org.bpmnflow.model.InconsistencyCode.*;
 
 /**
- * Handles {@link Task}, {@link StartEvent} and {@link EndEvent} elements.
+ * Handles {@link Task}, {@link ServiceTask}, {@link StartEvent} and
+ * {@link EndEvent} elements.
  *
- * <p>Populates: nodeMap in {@link ParsingContext} with {@link ActivityNode}
- * and {@link StartEndNode} entries.</p>
+ * <p>Populates: nodeMap in {@link ParsingContext} with {@link ActivityNode},
+ * {@link ApiActivityNode} and {@link StartEndNode} entries.</p>
+ *
+ * <h2>Task vs ServiceTask</h2>
+ * <p>{@code ServiceTask} extends {@code Task} in the BPMN meta-model, so both
+ * are captured by the {@code instanceof Task} check. The handler then asks the
+ * active {@link org.bpmnflow.parser.engine.EngineAdapter} for an
+ * {@link ApiHandlerDefinition} via {@code extractApiHandler()}. When a
+ * definition is returned (non-null), an {@link ApiActivityNode} is created;
+ * otherwise a plain {@link ActivityNode} is created — preserving full
+ * backward compatibility for models that contain no ServiceTask.</p>
  */
 public class FlowNodeHandler implements ElementHandler {
 
@@ -59,8 +69,68 @@ public class FlowNodeHandler implements ElementHandler {
         }
 
         if (valid) {
-            ctx.putNode(id, new ActivityNode(stageCode, activityCode, name, documentation));
+            if (flowNode instanceof ServiceTask) {
+                handleServiceTask(id, name, documentation, stageCode, activityCode, flowNode, ctx);
+            } else {
+                ctx.putNode(id, new ActivityNode(stageCode, activityCode, name, documentation));
+            }
         }
+    }
+
+    private void handleServiceTask(String id, String name, String documentation,
+                                   String stageCode, String activityCode,
+                                   FlowNode flowNode, ParsingContext ctx) {
+
+        ApiHandlerDefinition apiHandler =
+                ctx.engineAdapter.extractApiHandler(flowNode);
+
+        if (apiHandler == null) {
+            // ServiceTask without connector/taskDefinition — treat as plain ActivityNode
+            ctx.putNode(id, new ActivityNode(stageCode, activityCode, name, documentation));
+            return;
+        }
+
+        boolean apiValid = validateApiHandler(id, apiHandler, ctx);
+
+        if (apiValid) {
+            ctx.putNode(id, new ApiActivityNode(
+                    stageCode, activityCode, name, documentation, apiHandler));
+        }
+    }
+
+    /**
+     * Validates mandatory fields of the extracted {@link ApiHandlerDefinition}.
+     *
+     * <p>Validation rules are driven by the {@code serviceTask} section of the
+     * YAML config — the same pattern used for task/lane/sequenceFlow sections.
+     * Fields: {@code connectorId}, {@code endpoint}, {@code method}.</p>
+     *
+     * @return {@code true} when all required fields are present; {@code false}
+     *         when at least one inconsistency was added.
+     */
+    private boolean validateApiHandler(String id, ApiHandlerDefinition def,
+                                       ParsingContext ctx) {
+        boolean valid = true;
+
+        if (ctx.bpmnProperties.getServiceTask("connectorId").isRequired()
+                && isBlank(def.getConnectorId())) {
+            ctx.addInconsistency(API_CONNECTOR_ID_MISSING.of(id));
+            valid = false;
+        }
+
+        if (ctx.bpmnProperties.getServiceTask("endpoint").isRequired()
+                && isBlank(def.getEndpoint())) {
+            ctx.addInconsistency(API_ENDPOINT_MISSING.of(id));
+            valid = false;
+        }
+
+        if (ctx.bpmnProperties.getServiceTask("method").isRequired()
+                && isBlank(def.getMethod())) {
+            ctx.addInconsistency(API_METHOD_MISSING.of(id));
+            valid = false;
+        }
+
+        return valid;
     }
 
     private void handleEvent(FlowNode flowNode, boolean isStart, ParsingContext ctx) {

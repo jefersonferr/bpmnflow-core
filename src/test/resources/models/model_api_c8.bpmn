@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+    xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+    id="Definitions_api_c8"
+    targetNamespace="http://bpmn.io/schema/bpmn"
+    exporter="Camunda Modeler"
+    exporterVersion="5.45.0"
+    modeler:executionPlatform="Camunda Cloud"
+    modeler:executionPlatformVersion="8.7.0">
+
+  <bpmn:collaboration id="Collab_api_c8">
+    <bpmn:participant id="Participant_api_c8"
+                      name="Pizza Delivery API C8"
+                      processRef="Process_api_c8">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="process_type"    value="FD" />
+          <zeebe:property name="process_subtype" value="DLV" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+    </bpmn:participant>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_api_c8" isExecutable="true">
+    <bpmn:documentation>Pizza delivery process with API service tasks — Camunda 8.</bpmn:documentation>
+
+    <bpmn:extensionElements>
+      <zeebe:versionTag value="1.0" />
+    </bpmn:extensionElements>
+
+    <bpmn:laneSet id="LaneSet_api_c8">
+      <bpmn:lane id="Lane_clerk_c8" name="Clerk">
+        <bpmn:extensionElements>
+          <zeebe:properties>
+            <zeebe:property name="stage" value="SC" />
+          </zeebe:properties>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>StartEvent_api_c8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_api_payment_c8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_receive_order_c8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_api_tracking_c8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_api_c8</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_api_c8" name="Order Placed">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="process_status" value="NEW" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_c8_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="Task_api_payment_c8"
+                      name="Authorize Payment [API]"
+                      implementation="##unspecified">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="stage"    value="SC" />
+          <zeebe:property name="activity" value="PMT_AUTH" />
+        </zeebe:properties>
+        <zeebe:taskDefinition type="pizza-delivery-payment-authorize" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="endpoint" value="https://api.pagamentos.com/v1/authorize" />
+          <zeebe:header key="method"   value="POST" />
+          <zeebe:header key="x-api-version" value="2" />
+        </zeebe:taskHeaders>
+        <zeebe:ioMapping>
+          <zeebe:input  source="=cliente_id"  target="cliente_id" />
+          <zeebe:input  source="=valor_total" target="valor_total" />
+          <zeebe:output source="=pagamento_txn_id" target="pagamento_txn_id" />
+          <zeebe:output source="=pagamento_status" target="pagamento_status" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_c8_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:task id="Task_receive_order_c8" name="Receive Order">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="stage"    value="SC" />
+          <zeebe:property name="activity" value="RCV" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_c8_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:serviceTask id="Task_api_tracking_c8"
+                      name="Create Delivery Order [API]"
+                      implementation="##unspecified">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="stage"    value="SC" />
+          <zeebe:property name="activity" value="TRK_CREATE" />
+        </zeebe:properties>
+        <zeebe:taskDefinition type="pizza-delivery-tracking-create" retries="3" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="endpoint" value="https://api.logistica.com/v1/deliveries" />
+          <zeebe:header key="method"   value="POST" />
+        </zeebe:taskHeaders>
+        <zeebe:ioMapping>
+          <zeebe:input  source="=pedido_id"        target="pedido_id" />
+          <zeebe:input  source="=endereco_entrega" target="endereco_entrega" />
+          <zeebe:output source="=tracking_id"    target="tracking_id" />
+          <zeebe:output source="=tempo_estimado" target="tempo_estimado" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_c8_04</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="EndEvent_api_c8" name="Delivery Dispatched">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="process_status" value="DISPATCHED" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c8_04</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_c8_01" sourceRef="StartEvent_api_c8"     targetRef="Task_api_payment_c8" />
+    <bpmn:sequenceFlow id="Flow_c8_02" sourceRef="Task_api_payment_c8"   targetRef="Task_receive_order_c8" />
+    <bpmn:sequenceFlow id="Flow_c8_03" sourceRef="Task_receive_order_c8" targetRef="Task_api_tracking_c8" />
+    <bpmn:sequenceFlow id="Flow_c8_04" sourceRef="Task_api_tracking_c8"  targetRef="EndEvent_api_c8" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_api_c8">
+    <bpmndi:BPMNPlane id="BPMNPlane_api_c8" bpmnElement="Collab_api_c8">
+      <bpmndi:BPMNShape id="Participant_api_c8_di" bpmnElement="Participant_api_c8" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="820" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_clerk_c8_di" bpmnElement="Lane_clerk_c8" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="790" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_api_c8_di" bpmnElement="StartEvent_api_c8">
+        <dc:Bounds x="222" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_api_payment_c8_di" bpmnElement="Task_api_payment_c8">
+        <dc:Bounds x="310" y="140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_receive_order_c8_di" bpmnElement="Task_receive_order_c8">
+        <dc:Bounds x="490" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_api_tracking_c8_di" bpmnElement="Task_api_tracking_c8">
+        <dc:Bounds x="650" y="140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_api_c8_di" bpmnElement="EndEvent_api_c8">
+        <dc:Bounds x="832" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_c8_01_di" bpmnElement="Flow_c8_01">
+        <di:waypoint x="258" y="180" /><di:waypoint x="310" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c8_02_di" bpmnElement="Flow_c8_02">
+        <di:waypoint x="430" y="180" /><di:waypoint x="490" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c8_03_di" bpmnElement="Flow_c8_03">
+        <di:waypoint x="590" y="180" /><di:waypoint x="650" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c8_04_di" bpmnElement="Flow_c8_04">
+        <di:waypoint x="770" y="180" /><di:waypoint x="832" y="180" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
