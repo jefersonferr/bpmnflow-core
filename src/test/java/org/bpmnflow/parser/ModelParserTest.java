@@ -293,14 +293,23 @@ class ModelParserTest {
         }
 
         @Test
-        @DisplayName("Overall structure: 0 stages, 6 inconsistencies, 1 activity, 4 rules")
+        @DisplayName("Overall structure: 0 stages, 6 inconsistencies, 1 activity, 3 rules")
         void overallStructure() {
             assertAll(
                     () -> assertEquals(0, workflow.stagesSize()),
                     () -> assertEquals(6, workflow.inconsistenciesSize()),
                     () -> assertEquals(1, workflow.activitiesSize()),
-                    () -> assertEquals(4, workflow.rulesSize())
+                    () -> assertEquals(3, workflow.rulesSize())
             );
+        }
+
+        @Test
+        @DisplayName("No rule with accidental null endpoints (unnamed task → EndEvent is skipped)")
+        void noAccidentalNulls() {
+            workflow.getRules().forEach(r -> {
+                assertEquals(r.isInitial(), r.getSource() == null, () -> "source: " + r);
+                assertEquals(r.isFinal(),   r.getTarget() == null, () -> "target: " + r);
+            });
         }
 
         @AfterAll

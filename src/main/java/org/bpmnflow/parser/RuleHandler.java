@@ -8,6 +8,7 @@ import org.bpmnflow.model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.bpmnflow.model.RuleType.*;
 
@@ -19,6 +20,8 @@ import static org.bpmnflow.model.RuleType.*;
  * {@link GatewayHandler} (conclusionMap) are both complete.</p>
  */
 public class RuleHandler implements ElementHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(RuleHandler.class.getName());
 
     @Override
     public void handle(ParsingContext ctx) {
@@ -45,8 +48,8 @@ public class RuleHandler implements ElementHandler {
                     source, "process_status", ctx.engineAdapter);
             ActivityNode targetNode = toActivity(ctx.getNode(id(target)));
             if (notBlank(startStatus)) {
-                ctx.addRule(new WorkflowRule(START_TO_TASK, null, targetNode,
-                        conclusion, startStatus));
+                addRule(ctx, START_TO_TASK, null, targetNode,
+                        conclusion, startStatus);
             }
         }
 
@@ -54,7 +57,7 @@ public class RuleHandler implements ElementHandler {
         if (source instanceof Task && target instanceof Task) {
             ActivityNode src = toActivity(ctx.getNode(id(source)));
             ActivityNode tgt = toActivity(ctx.getNode(id(target)));
-            ctx.addRule(new WorkflowRule(TASK_TO_TASK, src, tgt, conclusion, processStatus));
+            addRule(ctx, TASK_TO_TASK, src, tgt, conclusion, processStatus);
         }
 
         // Task → ExclusiveGateway (merge or split fanout)
@@ -70,16 +73,16 @@ public class RuleHandler implements ElementHandler {
                     String endStatus = AttributeExtractor.extractOne(
                             ruleTarget, "process_status", ctx.engineAdapter);
                     if (notBlank(endStatus)) {
-                        ctx.addRule(new WorkflowRule(TASK_TO_MERGE_TO_END, src, null,
-                                conclusion, endStatus));
+                        addRule(ctx, TASK_TO_MERGE_TO_END, src, null,
+                                conclusion, endStatus);
                     }
                 }
 
                 // Rule 4 — Task → Merge → Task
                 if (ruleTarget instanceof Task) {
                     ActivityNode tgt = toActivity(ctx.getNode(id(ruleTarget)));
-                    ctx.addRule(new WorkflowRule(TASK_TO_MERGE_TO_TASK, src, tgt,
-                            conclusion, processStatus));
+                    addRule(ctx, TASK_TO_MERGE_TO_TASK, src, tgt,
+                            conclusion, processStatus);
                 }
             }
         }
@@ -93,8 +96,8 @@ public class RuleHandler implements ElementHandler {
             for (ActivityNode src : predecessors) {
                 ActivityNode tgt = toActivity(ctx.getNode(id(target)));
                 if (conclusion != null) {
-                    ctx.addRule(new WorkflowRule(SPLIT_TO_TASK, src, tgt,
-                            conclusion, processStatus));
+                    addRule(ctx, SPLIT_TO_TASK, src, tgt,
+                            conclusion, processStatus);
                 }
             }
         }
@@ -109,8 +112,8 @@ public class RuleHandler implements ElementHandler {
                 FlowNode ruleTarget = mergeGw.getOutgoing().iterator().next().getTarget();
                 ActivityNode src    = toActivity(ctx.getNode(id(ruleSource)));
                 ActivityNode tgt    = toActivity(ctx.getNode(id(ruleTarget)));
-                ctx.addRule(new WorkflowRule(SPLIT_TO_MERGE, src, tgt,
-                        conclusion, processStatus));
+                addRule(ctx, SPLIT_TO_MERGE, src, tgt,
+                        conclusion, processStatus);
             }
         }
 
@@ -120,8 +123,8 @@ public class RuleHandler implements ElementHandler {
                     target, "process_status", ctx.engineAdapter);
             ActivityNode src = toActivity(ctx.getNode(id(source)));
             if (notBlank(endStatus)) {
-                ctx.addRule(new WorkflowRule(TASK_TO_END, src, null,
-                        conclusion, endStatus));
+                addRule(ctx, TASK_TO_END, src, null,
+                        conclusion, endStatus);
             }
         }
 
@@ -134,11 +137,33 @@ public class RuleHandler implements ElementHandler {
                 String endStatus = AttributeExtractor.extractOne(
                         target, "process_status", ctx.engineAdapter);
                 if (notBlank(endStatus) && conclusion != null) {
-                    ctx.addRule(new WorkflowRule(TASK_TO_SPLIT_TO_END, src, null,
-                            conclusion, endStatus));
+                    addRule(ctx, TASK_TO_SPLIT_TO_END, src, null,
+                            conclusion, endStatus);
                 }
             }
         }
+    }
+
+    /**
+     * Single entry point for rule creation.
+     *
+     * <p>Skips the rule when its endpoints violate the {@link WorkflowRule}
+     * invariants — typically because a source or target task failed validation
+     * and was never added to the nodeMap. That task already produced its own
+     * inconsistency, so the skip is logged at FINE level only.</p>
+     */
+    private static void addRule(ParsingContext ctx, RuleType type, ActivityNode src,
+                                ActivityNode tgt, Conclusion conclusion, String status) {
+        if (!WorkflowRule.endpointsValid(type, src, tgt)) {
+            LOGGER.fine(() -> "Skipping " + type + " rule: source=" + abbr(src)
+                    + ", target=" + abbr(tgt) + " — an endpoint refers to an invalid element");
+            return;
+        }
+        ctx.addRule(new WorkflowRule(type, src, tgt, conclusion, status));
+    }
+
+    private static String abbr(ActivityNode node) {
+        return node == null ? "null" : node.getAbbreviation();
     }
 
     private static String id(FlowNode node) {
