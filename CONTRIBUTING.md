@@ -12,6 +12,7 @@ Thank you for your interest in contributing to BPMNFlow! This document explains 
 - [Commit Convention](#commit-convention)
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Versioning](#versioning)
+- [License](#license)
 - [Code of Conduct](#code-of-conduct)
 
 ---
@@ -121,6 +122,12 @@ BPMNFlow follows [Semantic Versioning](https://semver.org/):
 - **PATCH** — backward-compatible bug fixes.
 
 The version on `master` always ends in `-SNAPSHOT` (e.g. `4.0.0-SNAPSHOT`) while development is in progress. The suffix is removed only when a release is cut and published to Maven Central.
+
+---
+
+## License
+
+BPMNFlow is licensed under the [Apache License 2.0](LICENSE). By submitting a pull request, you agree that your contribution is licensed under the same terms, as described in section 5 of the license ("Submission of Contributions").
 
 ---
 
