@@ -2,7 +2,7 @@
 
 > Lightweight BPMN model parser for model-driven workflow automation
 
-![Java](https://img.shields.io/badge/Java-17-blue)
+![Java](https://img.shields.io/badge/Java-21-blue)
 ![Maven](https://img.shields.io/badge/Maven-3.8+-orange)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![BPMN Support](https://img.shields.io/badge/BPMN-2.0-brightgreen)
