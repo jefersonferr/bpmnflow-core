@@ -362,7 +362,7 @@ Query the model at runtime instead of hardcoding transitions:
 ```java
 // Which rules are triggered when a case enters a given status?
 workflow.getRules().stream()
-    .filter(r -> myStatus.equals(r.getProcessStatus()))
+    .filter(r -> !r.isFinal() && myStatus.equals(r.getProcessStatus()))
     .forEach(r -> System.out.println("Entry activity: " + r.getTarget().getAbbreviation()));
 ```
 

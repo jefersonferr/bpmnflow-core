@@ -18,6 +18,7 @@ import java.util.List;
  *
  * <h2>Handler execution order</h2>
  * <ol>
+ *   <li>{@link UnsupportedElementHandler} — warns about elements BPMNFlow ignores</li>
  *   <li>{@link ParticipantHandler} — workflow header, lanes → stages</li>
  *   <li>{@link FlowNodeHandler}    — tasks, events → nodeMap</li>
  *   <li>{@link GatewayHandler}     — exclusive gateways → conclusionMap</li>
@@ -40,11 +41,13 @@ public class ModelParser {
      * @param modelStream BPMN model as an input stream (not closed by this method)
      * @param config      pre-loaded properties configuration
      * @return a fully populated {@link Workflow}, possibly with inconsistencies
+     * @throws BpmnModelException if the stream is {@code null} or is not a readable BPMN 2.0 model
      */
     public static Workflow parser(InputStream modelStream, BpmnPropertiesConfig config) {
         ParsingContext ctx = buildContext(modelStream, config);
 
         List<ElementHandler> handlers = List.of(
+                new UnsupportedElementHandler(),
                 new ParticipantHandler(),
                 new FlowNodeHandler(),
                 new GatewayHandler(),
@@ -65,10 +68,13 @@ public class ModelParser {
         ParsingContext ctx = new ParsingContext();
         ctx.bpmnProperties = new BpmnPropertiesLoader(config);
         ctx.engineAdapter  = EngineAdapterFactory.create(config);
+        if (modelStream == null) {
+            throw new BpmnModelException("BPMN model stream must not be null");
+        }
         try {
             ctx.modelInstance = Bpmn.readModelFromStream(modelStream);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse BPMN model stream", e);
+            throw new BpmnModelException("Failed to parse BPMN model stream: " + e.getMessage(), e);
         }
         return ctx;
     }

@@ -2,12 +2,14 @@ package org.bpmnflow.parser;
 
 import org.bpmnflow.model.ApiActivityNode;
 import org.bpmnflow.model.ApiHandlerDefinition;
+import org.bpmnflow.model.ApiField;
 import org.bpmnflow.model.ActivityNode;
 import org.bpmnflow.model.Workflow;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -117,15 +119,41 @@ class ApiHandlerParserTest {
         }
 
         @Test
-        @DisplayName("Payment ApiHandlerDefinition: taskHeaders contains extra inputParameter x-api-version")
+        @DisplayName("Payment: <camunda:map> entries of the 'headers' parameter become taskHeaders")
         void paymentTaskHeaders() {
             ApiActivityNode node = (ApiActivityNode) findByActivity(workflow, "PMT_AUTH");
             assertNotNull(node);
             ApiHandlerDefinition def = node.getApiHandler();
 
-            boolean hasApiVersion = def.getTaskHeaders().stream()
-                    .anyMatch(f -> "x-api-version".equals(f.getKey()));
-            assertTrue(hasApiVersion, "x-api-version missing from taskHeaders");
+            assertEquals(1, def.getTaskHeaders().size(), () -> def.getTaskHeaders().toString());
+            assertEquals("x-api-version", def.getTaskHeaders().get(0).getKey());
+            assertEquals("2", def.getTaskHeaders().get(0).getValue());
+        }
+
+        @Test
+        @DisplayName("Payment: inputMappings holds payload only — no header duplicated, no raw 'headers' entry")
+        void paymentInputMappingsWithoutDuplicates() {
+            ApiActivityNode node = (ApiActivityNode) findByActivity(workflow, "PMT_AUTH");
+            assertNotNull(node);
+            List<String> keys = node.getApiHandler().getInputMappings().stream()
+                    .map(ApiField::getKey)
+                    .toList();
+
+            assertEquals(List.of("payload"), keys);
+        }
+
+        @Test
+        @DisplayName("Tracking: plain extra parameter (timeout) goes to inputMappings only, never to taskHeaders")
+        void trackingExtraParameterIsInputOnly() {
+            ApiActivityNode node = (ApiActivityNode) findByActivity(workflow, "TRK_CREATE");
+            assertNotNull(node);
+            ApiHandlerDefinition def = node.getApiHandler();
+
+            assertAll(
+                    () -> assertTrue(def.getTaskHeaders().isEmpty(), () -> def.getTaskHeaders().toString()),
+                    () -> assertEquals(List.of("payload", "timeout"),
+                            def.getInputMappings().stream().map(ApiField::getKey).toList())
+            );
         }
 
         @Test

@@ -1,5 +1,7 @@
 package org.bpmnflow.parser;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class BpmnPropertiesLoader {
@@ -7,6 +9,13 @@ public class BpmnPropertiesLoader {
     private static final Logger LOGGER = Logger.getLogger(BpmnPropertiesLoader.class.getName());
 
     private final BpmnPropertiesConfig config;
+
+    /**
+     * Element types already reported as missing from the config. Each missing
+     * type is logged once per loader (i.e. once per parse), instead of once per
+     * lookup — a model with 50 tasks used to produce 50 identical warnings.
+     */
+    private final Set<String> warnedMissingTypes = new HashSet<>();
 
     public BpmnPropertiesLoader(BpmnPropertiesConfig config) {
         this.config = config;
@@ -76,7 +85,8 @@ public class BpmnPropertiesLoader {
      *
      * <p>Log levels:
      * <ul>
-     *   <li>WARNING — element type entirely absent from config: likely a configuration error.</li>
+     *   <li>WARNING — element type entirely absent from config: likely a configuration error.
+     *       Logged once per element type per loader instance.</li>
      *   <li>FINE    — property absent within a mapped type: intentional and valid usage.</li>
      * </ul>
      * </p>
@@ -87,10 +97,12 @@ public class BpmnPropertiesLoader {
      */
     private ModelProperty getPropertiesForType(String elementType, String propertyName) {
         if (config.getExtensionProperties() == null || !config.getExtensionProperties().containsKey(elementType)) {
-            LOGGER.warning(String.format(
-                    "Element type '%s' not found in config — property '%s' treated as not required.",
-                    elementType, propertyName
-            ));
+            if (warnedMissingTypes.add(elementType)) {
+                LOGGER.warning(String.format(
+                        "Element type '%s' not found in config — its properties are treated as not required.",
+                        elementType
+                ));
+            }
             return ModelProperty.ABSENT;
         }
 

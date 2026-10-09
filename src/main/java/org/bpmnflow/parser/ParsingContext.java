@@ -7,6 +7,7 @@ import org.bpmnflow.parser.engine.EngineAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,9 @@ public class ParsingContext {
     final List<Stage>                   stages          = new ArrayList<>();
     final List<Inconsistency>           inconsistencies = new ArrayList<>();
     final List<WorkflowRule>            rules           = new ArrayList<>();
-    final Map<String, Node>             nodeMap         = new HashMap<>();
+    // LinkedHashMap: activities are exposed in a deterministic order
+    // (the order in which the parser visits them in the BPMN document).
+    final Map<String, Node>             nodeMap         = new LinkedHashMap<>();
     final Map<SequenceFlow, Conclusion> conclusionMap   = new HashMap<>();
 
     // ── Parsed model (set once by ModelParser before handlers run) ────

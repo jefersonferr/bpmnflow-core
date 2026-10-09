@@ -7,7 +7,9 @@ import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.bpmnflow.model.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.bpmnflow.model.InconsistencyCode.*;
 
@@ -19,6 +21,8 @@ import static org.bpmnflow.model.InconsistencyCode.*;
  * processType, processSubtype, and the stages list in {@link ParsingContext}.</p>
  */
 public class ParticipantHandler implements ElementHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(ParticipantHandler.class.getName());
 
     @Override
     public void handle(ParsingContext ctx) {
@@ -34,9 +38,33 @@ public class ParticipantHandler implements ElementHandler {
             return;
         }
 
-        for (ModelElementInstance p : participants) {
-            handleParticipant((Participant) p, ctx);
+        List<Participant> all = participants.stream()
+                .map(p -> (Participant) p)
+                .toList();
+        List<Participant> withProcess = all.stream()
+                .filter(p -> p.getProcess() != null)
+                .toList();
+
+        if (withProcess.isEmpty()) {
+            // No pool references a process: validate every participant as before
+            // (each one may report PROCESS_REQUIRED).
+            all.forEach(p -> handleParticipant(p, ctx));
+            return;
         }
+
+        // Black-box pools (external participants without a process) are ignored.
+        // The workflow header and stages come from the first pool with a process;
+        // previously every participant overwrote the header and the last one won.
+        Participant main = withProcess.get(0);
+        if (withProcess.size() > 1) {
+            LOGGER.warning(() -> String.format(
+                    "BpmnFlow supports one process per model, but %d participants reference a process."
+                            + " Workflow header and stages are taken from '%s'; ignored: %s.",
+                    withProcess.size(), main.getId(),
+                    withProcess.subList(1, withProcess.size()).stream()
+                            .map(Participant::getId).toList()));
+        }
+        handleParticipant(main, ctx);
     }
 
     private void handleParticipant(Participant participant, ParsingContext ctx) {

@@ -68,7 +68,11 @@
             <camunda:inputParameter name="url">https://api.pagamentos.com/v1/authorize</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="payload">{"customer_id":"${cliente_id}","amount":"${valor_total}"}</camunda:inputParameter>
-            <camunda:inputParameter name="x-api-version">2</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="x-api-version">2</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
             <camunda:outputParameter name="pagamento_txn_id">${response.transaction_id}</camunda:outputParameter>
             <camunda:outputParameter name="pagamento_status">${response.status}</camunda:outputParameter>
           </camunda:inputOutput>
@@ -103,6 +107,7 @@
             <camunda:inputParameter name="url">https://api.logistica.com/v1/deliveries</camunda:inputParameter>
             <camunda:inputParameter name="method">POST</camunda:inputParameter>
             <camunda:inputParameter name="payload">{"order_id":"${pedido_id}","address":"${endereco}"}</camunda:inputParameter>
+            <camunda:inputParameter name="timeout">30</camunda:inputParameter>
             <camunda:outputParameter name="tracking_id">${response.tracking_id}</camunda:outputParameter>
             <camunda:outputParameter name="tempo_estimado">${response.estimated_minutes}</camunda:outputParameter>
           </camunda:inputOutput>
