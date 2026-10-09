@@ -72,7 +72,8 @@ public interface EngineAdapter {
     ApiHandlerDefinition extractApiHandler(BaseElement element);
 
     /**
-     * Engine identifier. Values: {@code "camunda7"}, {@code "camunda8"}.
+     * Engine identifier. Values: {@code "camunda7"}, {@code "camunda8"},
+     * {@code "operaton"}, {@code "cibseven"}.
      */
     String engineId();
 }

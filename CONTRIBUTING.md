@@ -40,7 +40,7 @@ mvn compile
 mvn test
 ```
 
-All tests must pass before submitting a pull request. The test suite covers 14 BPMN models with different topologies and validation scenarios.
+All tests must pass before submitting a pull request. The test suite covers 17 BPMN models with different topologies and validation scenarios.
 
 If you add a new feature, please add at least one test that covers it.
 

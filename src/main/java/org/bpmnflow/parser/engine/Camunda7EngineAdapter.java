@@ -53,6 +53,12 @@ import java.util.Map;
  * </bpmn:extensionElements>
  * }</pre>
  *
+ * <h2>Camunda 7 family</h2>
+ * <p>The same adapter serves Camunda 7, CIB seven (which keeps the
+ * {@code camunda:} namespace) and Operaton (which uses
+ * {@code http://operaton.org/schema/1.0/bpmn} and also accepts {@code camunda:}).
+ * Both namespaces are accepted everywhere, and may be mixed in one model.</p>
+ *
  * <h2>Mapping rules (Camunda 7 http-connector convention)</h2>
  * <ul>
  *   <li>{@code url} → {@code endpoint}; {@code method} → {@code method}</li>
@@ -64,7 +70,32 @@ import java.util.Map;
  */
 public class Camunda7EngineAdapter implements EngineAdapter {
 
-    private static final String CAMUNDA7_NS = "http://camunda.org/schema/1.0/bpmn";
+    /** Camunda 7 and CIB seven extension namespace. */
+    static final String CAMUNDA7_NS = "http://camunda.org/schema/1.0/bpmn";
+
+    /** Operaton extension namespace (Operaton also accepts {@link #CAMUNDA7_NS}). */
+    static final String OPERATON_NS = "http://operaton.org/schema/1.0/bpmn";
+
+    /**
+     * Namespaces accepted for extension elements and attributes, in lookup order.
+     * Models may use either namespace, or mix both.
+     */
+    static final List<String> SUPPORTED_NS = List.of(CAMUNDA7_NS, OPERATON_NS);
+
+    private final String engineId;
+
+    /** Creates the adapter for Camunda 7 ({@code engineId = "camunda7"}). */
+    public Camunda7EngineAdapter() {
+        this("camunda7");
+    }
+
+    /**
+     * Creates the adapter reporting the given engine id. Used for the
+     * Camunda 7 family aliases: {@code camunda7}, {@code operaton}, {@code cibseven}.
+     */
+    public Camunda7EngineAdapter(String engineId) {
+        this.engineId = engineId;
+    }
     // ---------------------------------------------------------------
     // extractProperties
     // ---------------------------------------------------------------
@@ -78,18 +109,14 @@ public class Camunda7EngineAdapter implements EngineAdapter {
         for (ModelElementInstance instance : extensionElements.getElements()) {
             DomElement domEl = instance.getDomElement();
 
-            if (!CAMUNDA7_NS.equals(domEl.getNamespaceURI())) continue;
-            if (!"properties".equals(domEl.getLocalName()))   continue;
+            if (!isSupportedNs(domEl)) continue;
+            if (!"properties".equals(domEl.getLocalName())) continue;
 
             for (DomElement child : domEl.getChildElements()) {
                 if (!"property".equals(child.getLocalName())) continue;
 
-                String name  = child.getAttribute(CAMUNDA7_NS, "name");
-                String value = child.getAttribute(CAMUNDA7_NS, "value");
-
-                // Fallback: some exporters omit the namespace qualifier on attributes
-                if (name  == null) name  = child.getAttribute("", "name");
-                if (value == null) value = child.getAttribute("", "value");
+                String name  = attr(child, "name");
+                String value = attr(child, "value");
                 if (name  != null) attributes.put(name, value);
             }
         }
@@ -102,7 +129,11 @@ public class Camunda7EngineAdapter implements EngineAdapter {
 
     @Override
     public String extractVersionTag(BaseElement process) {
-        return process.getAttributeValueNs(CAMUNDA7_NS, "versionTag");
+        for (String ns : SUPPORTED_NS) {
+            String value = process.getAttributeValueNs(ns, "versionTag");
+            if (value != null) return value;
+        }
+        return null;
     }
 
     // ---------------------------------------------------------------
@@ -123,7 +154,7 @@ public class Camunda7EngineAdapter implements EngineAdapter {
 
         for (ModelElementInstance instance : extensionElements.getElements()) {
             DomElement domEl = instance.getDomElement();
-            if (!CAMUNDA7_NS.equals(domEl.getNamespaceURI())) continue;
+            if (!isSupportedNs(domEl)) continue;
             if ("connector".equals(domEl.getLocalName()))
                 return parseConnector(domEl);
         }
@@ -214,14 +245,23 @@ public class Camunda7EngineAdapter implements EngineAdapter {
         return fields;
     }
 
-    /** Reads an attribute without namespace qualification (C7 exporters omit ns on attrs). */
+    /** {@code true} when the element belongs to the Camunda 7 or Operaton namespace. */
+    private static boolean isSupportedNs(DomElement el) {
+        return SUPPORTED_NS.contains(el.getNamespaceURI());
+    }
+
+    /** Reads an attribute in any supported namespace, falling back to the unqualified form. */
     private static String attr(DomElement el, String name) {
-        String v = el.getAttribute(CAMUNDA7_NS, name);
-        return v != null ? v : el.getAttribute("", name);
+        for (String ns : SUPPORTED_NS) {
+            String v = el.getAttribute(ns, name);
+            if (v != null) return v;
+        }
+        // Fallback: most exporters do not namespace-qualify these attributes
+        return el.getAttribute("", name);
     }
 
     @Override
     public String engineId() {
-        return "camunda7";
+        return engineId;
     }
 }

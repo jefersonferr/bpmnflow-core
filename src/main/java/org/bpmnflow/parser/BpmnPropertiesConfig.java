@@ -15,7 +15,10 @@ public class BpmnPropertiesConfig {
      * Target engine. Determines which {@link org.bpmnflow.parser.engine.EngineAdapter}
      * will be instantiated by {@link org.bpmnflow.parser.engine.EngineAdapterFactory}.
      *
-     * <p>Valid values: {@code "camunda7"} | {@code "camunda8"}.</p>
+     * <p>Valid values: {@code "camunda7"} | {@code "camunda8"} |
+     * {@code "operaton"} | {@code "cibseven"}. The last two are aliases of the
+     * Camunda 7 adapter, which reads both the {@code camunda:} and the
+     * {@code operaton:} namespaces.</p>
      * <p>Default: {@code "camunda7"} — ensures backward compatibility for
      * existing configs that do not declare the {@code engine} field.</p>
      */

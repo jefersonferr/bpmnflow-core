@@ -27,7 +27,7 @@ public final class EngineAdapterFactory {
     public static EngineAdapter create(BpmnPropertiesConfig config) {
         String engine = config.getEngine();
         EngineAdapter adapter = switch (engine) {
-            case "camunda7" -> new Camunda7EngineAdapter();
+            case "camunda7", "operaton", "cibseven" -> new Camunda7EngineAdapter(engine);
             case "camunda8" -> new Camunda8EngineAdapter();
             default -> throw new BpmnConfigException(
                     "Unsupported engine: '" + engine + "'. " +
@@ -38,6 +38,6 @@ public final class EngineAdapterFactory {
     }
 
     public static Set<String> supportedEngines() {
-        return Set.of("camunda7", "camunda8");
+        return Set.of("camunda7", "camunda8", "operaton", "cibseven");
     }
 }
