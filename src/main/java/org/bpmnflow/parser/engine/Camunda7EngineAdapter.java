@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Adapter for Camunda 7.
@@ -42,19 +41,30 @@ import java.util.Set;
  *     <camunda:inputOutput>
  *       <camunda:inputParameter name="url">https://api.example.com</camunda:inputParameter>
  *       <camunda:inputParameter name="method">POST</camunda:inputParameter>
+ *       <camunda:inputParameter name="headers">
+ *         <camunda:map>
+ *           <camunda:entry key="x-api-version">2</camunda:entry>
+ *         </camunda:map>
+ *       </camunda:inputParameter>
+ *       <camunda:inputParameter name="payload">{"amount": 10}</camunda:inputParameter>
  *       <camunda:outputParameter name="txn_id">...</camunda:outputParameter>
  *     </camunda:inputOutput>
  *   </camunda:connector>
  * </bpmn:extensionElements>
  * }</pre>
+ *
+ * <h2>Mapping rules (Camunda 7 http-connector convention)</h2>
+ * <ul>
+ *   <li>{@code url} → {@code endpoint}; {@code method} → {@code method}</li>
+ *   <li>{@code headers} with a {@code <camunda:map>} → one {@code taskHeaders} entry per map entry</li>
+ *   <li>every other input parameter (including {@code payload}) → {@code inputMappings}</li>
+ *   <li>output parameters → {@code outputMappings}</li>
+ * </ul>
+ * <p>No parameter is ever placed in both {@code taskHeaders} and {@code inputMappings}.</p>
  */
 public class Camunda7EngineAdapter implements EngineAdapter {
 
     private static final String CAMUNDA7_NS = "http://camunda.org/schema/1.0/bpmn";
-
-    private static final Set<String> RESERVED_INPUT_PARAMS =
-            Set.of("url", "method", "payload", "headers");
-
     // ---------------------------------------------------------------
     // extractProperties
     // ---------------------------------------------------------------
@@ -141,19 +151,24 @@ public class Camunda7EngineAdapter implements EngineAdapter {
                     String ioLocal = ioChild.getLocalName();
 
                     if ("inputParameter".equals(ioLocal)) {
-                        String name  = attr(ioChild, "name");
-                        String value = ioChild.getTextContent();
+                        String name = attr(ioChild, "name");
+                        if (name == null) continue;
 
-                        if ("url".equals(name)) {
-                            url = value;
-                        } else if ("method".equals(name)) {
-                            method = value;
-                        } else if (!RESERVED_INPUT_PARAMS.contains(name) && name != null) {
-                            taskHeaders.add(new ApiField(name, value));
-                            inputMappings.add(new ApiField(name, value));
-                        } else if (name != null) {
-                            inputMappings.add(new ApiField(name, value));
+                        switch (name) {
+                            case "url"     -> url = ioChild.getTextContent();
+                            case "method"  -> method = ioChild.getTextContent();
+                            case "headers" -> {
+                                DomElement map = findChild(ioChild, "map");
+                                if (map != null) {
+                                    taskHeaders.addAll(parseMap(map));
+                                } else {
+                                    // Not the http-connector map form — keep it as a plain input
+                                    inputMappings.add(new ApiField(name, ioChild.getTextContent()));
+                                }
+                            }
+                            default -> inputMappings.add(new ApiField(name, ioChild.getTextContent()));
                         }
+                        continue;
                     }
 
                     if ("outputParameter".equals(ioLocal)) {
@@ -178,6 +193,25 @@ public class Camunda7EngineAdapter implements EngineAdapter {
                 .inputMappings(inputMappings)
                 .outputMappings(outputMappings)
                 .build();
+    }
+
+    /** Returns the first child element with the given local name, or {@code null}. */
+    private static DomElement findChild(DomElement parent, String localName) {
+        for (DomElement child : parent.getChildElements()) {
+            if (localName.equals(child.getLocalName())) return child;
+        }
+        return null;
+    }
+
+    /** Converts {@code <camunda:map><camunda:entry key="k">v</camunda:entry></camunda:map>} into fields. */
+    private static List<ApiField> parseMap(DomElement map) {
+        List<ApiField> fields = new ArrayList<>();
+        for (DomElement entry : map.getChildElements()) {
+            if (!"entry".equals(entry.getLocalName())) continue;
+            String key = attr(entry, "key");
+            if (key != null) fields.add(new ApiField(key, entry.getTextContent()));
+        }
+        return fields;
     }
 
     /** Reads an attribute without namespace qualification (C7 exporters omit ns on attrs). */
