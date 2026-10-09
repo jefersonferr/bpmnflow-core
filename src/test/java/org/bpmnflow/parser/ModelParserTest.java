@@ -428,6 +428,16 @@ class ModelParserTest {
             );
         }
 
+        @Test
+        @DisplayName("Activities follow the BPMN document order (deterministic)")
+        void activityOrder() {
+            assertEquals(
+                    java.util.List.of("ST-AC1", "ST-AC3", "ST-AC2", "ST-AC4"),
+                    workflow.getActivities().stream()
+                            .map(ActivityNode::getAbbreviation)
+                            .toList());
+        }
+
         @AfterAll
         void printWorkflow() {
             OUT.println("Model 09: " + workflow);
