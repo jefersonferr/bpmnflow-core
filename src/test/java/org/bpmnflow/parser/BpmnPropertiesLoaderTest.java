@@ -4,8 +4,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -108,5 +113,36 @@ class BpmnPropertiesLoaderTest {
         ModelProperty b = loaderWithConfig.getLane("missing_b");
         assertSame(ModelProperty.ABSENT, a);
         assertSame(ModelProperty.ABSENT, b);
+    }
+
+    @Test
+    @DisplayName("Missing element type is logged once per type, not once per lookup")
+    void givenMissingElementType_whenLookedUpRepeatedly_thenWarnsOncePerType() {
+        Logger logger = Logger.getLogger(BpmnPropertiesLoader.class.getName());
+        List<LogRecord> records = new ArrayList<>();
+        Handler capture = new Handler() {
+            @Override public void publish(LogRecord r) { records.add(r); }
+            @Override public void flush() { }
+            @Override public void close() { }
+        };
+        logger.addHandler(capture);
+        try {
+            BpmnPropertiesLoader loader = new BpmnPropertiesLoader(new BpmnPropertiesConfig());
+            loader.getLane("stage");
+            loader.getLane("name");
+            loader.getLane("presence");
+            loader.getTask("stage");
+            loader.getTask("activity");
+
+            List<String> warnings = records.stream()
+                    .filter(r -> r.getLevel() == Level.WARNING)
+                    .map(LogRecord::getMessage)
+                    .toList();
+            assertEquals(2, warnings.size(), warnings::toString);
+            assertTrue(warnings.get(0).contains("'lane'"));
+            assertTrue(warnings.get(1).contains("'task'"));
+        } finally {
+            logger.removeHandler(capture);
+        }
     }
 }
