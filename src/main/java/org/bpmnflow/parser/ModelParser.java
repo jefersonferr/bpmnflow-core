@@ -18,6 +18,7 @@ import java.util.List;
  *
  * <h2>Handler execution order</h2>
  * <ol>
+ *   <li>{@link UnsupportedElementHandler} — warns about elements BPMNFlow ignores</li>
  *   <li>{@link ParticipantHandler} — workflow header, lanes → stages</li>
  *   <li>{@link FlowNodeHandler}    — tasks, events → nodeMap</li>
  *   <li>{@link GatewayHandler}     — exclusive gateways → conclusionMap</li>
@@ -45,6 +46,7 @@ public class ModelParser {
         ParsingContext ctx = buildContext(modelStream, config);
 
         List<ElementHandler> handlers = List.of(
+                new UnsupportedElementHandler(),
                 new ParticipantHandler(),
                 new FlowNodeHandler(),
                 new GatewayHandler(),
