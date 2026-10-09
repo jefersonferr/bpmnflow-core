@@ -103,17 +103,16 @@ public class RuleHandler implements ElementHandler {
         }
 
         // Rule 6 — Split → Merge
+        // Supports merge+split gateways (multiple incomings), consistent with
+        // Rules 5 and 8: every ActivityNode predecessor of the split receives a
+        // SPLIT_TO_MERGE rule towards the activity that follows the merge.
         if (source instanceof ExclusiveGateway splitGw
-                && target instanceof ExclusiveGateway mergeGw) {
-            boolean isSplit = splitGw.getIncoming().size() == 1;
-            boolean isMerge = mergeGw.getOutgoing().size() == 1;
-            if (isSplit && isMerge) {
-                FlowNode ruleSource = splitGw.getIncoming().iterator().next().getSource();
-                FlowNode ruleTarget = mergeGw.getOutgoing().iterator().next().getTarget();
-                ActivityNode src    = toActivity(ctx.getNode(id(ruleSource)));
-                ActivityNode tgt    = toActivity(ctx.getNode(id(ruleTarget)));
-                addRule(ctx, SPLIT_TO_MERGE, src, tgt,
-                        conclusion, processStatus);
+                && target instanceof ExclusiveGateway mergeGw
+                && mergeGw.getOutgoing().size() == 1) {
+            FlowNode ruleTarget = mergeGw.getOutgoing().iterator().next().getTarget();
+            ActivityNode tgt    = toActivity(ctx.getNode(id(ruleTarget)));
+            for (ActivityNode src : resolveAllActivityPredecessors(splitGw, ctx)) {
+                addRule(ctx, SPLIT_TO_MERGE, src, tgt, conclusion, processStatus);
             }
         }
 
@@ -198,25 +197,5 @@ public class RuleHandler implements ElementHandler {
             }
         }
         return result;
-    }
-
-    /**
-     * Resolves the primary {@link ActivityNode} predecessor of a gateway by iterating
-     * its incoming edges and returning the first whose source maps to an ActivityNode.
-     *
-     * <p>Retained for Rule 6 (Split → Merge) which needs only one predecessor
-     * to identify the source activity of the combined path.</p>
-     *
-     * @return the first ActivityNode predecessor, or {@code null} if none found.
-     */
-    private static ActivityNode resolveActivityPredecessor(ExclusiveGateway gateway,
-                                                           ParsingContext ctx) {
-        for (SequenceFlow incoming : gateway.getIncoming()) {
-            Node candidate = ctx.getNode(incoming.getSource().getAttributeValue("id"));
-            if (candidate instanceof ActivityNode activityNode) {
-                return activityNode;
-            }
-        }
-        return null;
     }
 }

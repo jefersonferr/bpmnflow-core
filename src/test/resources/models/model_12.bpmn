@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Model 12 — Rule 6 (Split → Merge) with a merge+split gateway.
+
+  Start ─► MS-AC1 ─► Gateway_Split ──(01 Continue)──► Gateway_Merge ─► MS-AC3 ─► End
+                         ▲   │
+                         │   └──(02 Retry)──► MS-AC2 ─┐
+                         └────────────────────────────┘
+
+  Gateway_Split has TWO incomings (MS-AC1 and MS-AC2). Both activities must
+  receive SPLIT_TO_MERGE → MS-AC3 with conclusion 01.
+-->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_model_12" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_model_12">
+    <bpmn:participant id="Participant_MS" name="Merge Split Merge" processRef="Process_MS" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_MS" isExecutable="true" camunda:versionTag="1.0">
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property name="process_type" value="TEST" />
+        <camunda:property name="process_subtype" value="MSM" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+
+    <bpmn:startEvent id="Start" name="Start">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="NEW" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_Start</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Task_1" name="Task 1">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage" value="MS" />
+          <camunda:property name="activity" value="AC1" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start</bpmn:incoming>
+      <bpmn:outgoing>Flow_T1_Split</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_2" name="Task 2 (retry)">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage" value="MS" />
+          <camunda:property name="activity" value="AC2" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Retry</bpmn:incoming>
+      <bpmn:outgoing>Flow_T2_Split</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_Split">
+      <bpmn:incoming>Flow_T1_Split</bpmn:incoming>
+      <bpmn:incoming>Flow_T2_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_Continue</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Retry</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_Merge">
+      <bpmn:incoming>Flow_Continue</bpmn:incoming>
+      <bpmn:outgoing>Flow_Merge_T3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_3" name="Task 3">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage" value="MS" />
+          <camunda:property name="activity" value="AC3" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Merge_T3</bpmn:incoming>
+      <bpmn:outgoing>Flow_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="End" name="End">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="END" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_Start" sourceRef="Start" targetRef="Task_1" />
+    <bpmn:sequenceFlow id="Flow_T1_Split" sourceRef="Task_1" targetRef="Gateway_Split" />
+    <bpmn:sequenceFlow id="Flow_T2_Split" sourceRef="Task_2" targetRef="Gateway_Split" />
+    <bpmn:sequenceFlow id="Flow_Continue" name="Continue" sourceRef="Gateway_Split" targetRef="Gateway_Merge">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="conclusion" value="01" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Retry" name="Retry" sourceRef="Gateway_Split" targetRef="Task_2">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="conclusion" value="02" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Merge_T3" sourceRef="Gateway_Merge" targetRef="Task_3" />
+    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_3" targetRef="End" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_model_12">
+      <bpmndi:BPMNShape id="Participant_MS_di" bpmnElement="Participant_MS" isHorizontal="true">
+        <dc:Bounds x="130" y="80" width="730" height="320" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_di" bpmnElement="Start">
+        <dc:Bounds x="182" y="160" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1_di" bpmnElement="Task_1">
+        <dc:Bounds x="260" y="138" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Split_di" bpmnElement="Gateway_Split" isMarkerVisible="true">
+        <dc:Bounds x="410" y="153" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Merge_di" bpmnElement="Gateway_Merge" isMarkerVisible="true">
+        <dc:Bounds x="530" y="153" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_3_di" bpmnElement="Task_3">
+        <dc:Bounds x="630" y="138" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_di" bpmnElement="End">
+        <dc:Bounds x="782" y="160" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_2_di" bpmnElement="Task_2">
+        <dc:Bounds x="385" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_di" bpmnElement="Flow_Start">
+        <di:waypoint x="218" y="178" />
+        <di:waypoint x="260" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T1_Split_di" bpmnElement="Flow_T1_Split">
+        <di:waypoint x="360" y="178" />
+        <di:waypoint x="410" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Continue_di" bpmnElement="Flow_Continue">
+        <di:waypoint x="460" y="178" />
+        <di:waypoint x="530" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Merge_T3_di" bpmnElement="Flow_Merge_T3">
+        <di:waypoint x="580" y="178" />
+        <di:waypoint x="630" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_di" bpmnElement="Flow_End">
+        <di:waypoint x="730" y="178" />
+        <di:waypoint x="782" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Retry_di" bpmnElement="Flow_Retry">
+        <di:waypoint x="435" y="203" />
+        <di:waypoint x="435" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T2_Split_di" bpmnElement="Flow_T2_Split">
+        <di:waypoint x="485" y="320" />
+        <di:waypoint x="505" y="320" />
+        <di:waypoint x="505" y="120" />
+        <di:waypoint x="435" y="120" />
+        <di:waypoint x="435" y="153" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
