@@ -46,7 +46,7 @@ public class FlowNodeHandler implements ElementHandler {
     private void handleTask(FlowNode flowNode, ParsingContext ctx) {
         String id            = flowNode.getAttributeValue("id");
         String name          = flowNode.getAttributeValue("name");
-        String documentation = flowNode.getAttributeValue("documentation");
+        String documentation = AttributeExtractor.documentation(flowNode);
         Map<String, String> attrs = AttributeExtractor.extract(flowNode, ctx.engineAdapter);
 
         boolean valid = true;
@@ -136,7 +136,7 @@ public class FlowNodeHandler implements ElementHandler {
     private void handleEvent(FlowNode flowNode, boolean isStart, ParsingContext ctx) {
         String id            = flowNode.getAttributeValue("id");
         String name          = flowNode.getAttributeValue("name");
-        String documentation = flowNode.getAttributeValue("documentation");
+        String documentation = AttributeExtractor.documentation(flowNode);
         String processStatus = AttributeExtractor.extractOne(
                 flowNode, "process_status", ctx.engineAdapter);
 

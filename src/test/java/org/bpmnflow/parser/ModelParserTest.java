@@ -1,5 +1,6 @@
 package org.bpmnflow.parser;
 
+import org.bpmnflow.model.ActivityNode;
 import org.bpmnflow.model.Conclusion;
 import org.bpmnflow.model.Workflow;
 import org.junit.jupiter.api.AfterAll;
@@ -376,6 +377,22 @@ class ModelParserTest {
                     () -> assertEquals(14, workflow.activitiesSize()),
                     () -> assertEquals(32, workflow.rulesSize())
             );
+        }
+
+        @Test
+        @DisplayName("Task documentation is read from <bpmn:documentation> (TR-ADR = '1234')")
+        void taskDocumentation() {
+            assertAll(
+                    () -> assertEquals("1234", activity("TR-ADR").getDocumentation()),
+                    () -> assertNull(activity("CO-TER").getDocumentation())
+            );
+        }
+
+        private ActivityNode activity(String abbreviation) {
+            return workflow.getActivities().stream()
+                    .filter(a -> abbreviation.equals(a.getAbbreviation()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("Activity not found: " + abbreviation));
         }
 
         @AfterAll
