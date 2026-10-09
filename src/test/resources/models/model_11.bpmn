@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Model 11 — multiple participants.
+  * Participant_Main      → Process_Main      (header + stage MN expected)
+  * Participant_Secondary → Process_Secondary (ignored for header/stages, WARNING logged)
+  * Participant_Customer  → black-box pool, no process (ignored, no inconsistency)
+-->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_model_11" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_model_11">
+    <bpmn:participant id="Participant_Main" name="Main Process" processRef="Process_Main" />
+    <bpmn:participant id="Participant_Secondary" name="Secondary Process" processRef="Process_Secondary" />
+    <bpmn:participant id="Participant_Customer" name="Customer" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_Main" isExecutable="true" camunda:versionTag="1.0">
+    <bpmn:documentation>Main process documentation</bpmn:documentation>
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property name="process_type" value="MT" />
+        <camunda:property name="process_subtype" value="MST" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_Main">
+      <bpmn:lane id="Lane_Main" name="Main Lane">
+        <bpmn:extensionElements>
+          <camunda:properties>
+            <camunda:property name="stage" value="MN" />
+          </camunda:properties>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>Start_Main</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Main</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Main</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Main" name="Start">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="NEW" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_Main_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Main" name="Main Task">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage" value="MN" />
+          <camunda:property name="activity" value="AC1" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Main_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Main_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Main" name="End">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="END" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Main_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Main_1" sourceRef="Start_Main" targetRef="Task_Main" />
+    <bpmn:sequenceFlow id="Flow_Main_2" sourceRef="Task_Main" targetRef="End_Main" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_Secondary" isExecutable="false" camunda:versionTag="9.9">
+    <bpmn:documentation>Secondary process documentation</bpmn:documentation>
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property name="process_type" value="ST" />
+        <camunda:property name="process_subtype" value="SST" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_Secondary">
+      <bpmn:lane id="Lane_Secondary" name="Secondary Lane">
+        <bpmn:extensionElements>
+          <camunda:properties>
+            <camunda:property name="stage" value="SC" />
+          </camunda:properties>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>Start_Secondary</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Secondary</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Secondary</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Secondary" name="Start">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="NEW" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_Secondary_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Secondary" name="Secondary Task">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="stage" value="SC" />
+          <camunda:property name="activity" value="AC1" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Secondary_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Secondary_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Secondary" name="End">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="process_status" value="END" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Secondary_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Secondary_1" sourceRef="Start_Secondary" targetRef="Task_Secondary" />
+    <bpmn:sequenceFlow id="Flow_Secondary_2" sourceRef="Task_Secondary" targetRef="End_Secondary" />
+  </bpmn:process>
+</bpmn:definitions>
