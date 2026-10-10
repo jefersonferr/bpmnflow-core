@@ -180,34 +180,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Assina os artefatos com GPG — obrigatório pelo Maven Central -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>${maven-gpg-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Publica no Maven Central via Sonatype Central Portal -->
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>${central-publishing-maven-plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 
@@ -247,11 +219,63 @@
             <id>github</id>
             <url>https://maven.pkg.github.com/jefersonferr/bpmnflow-core</url>
         </snapshotRepository>
-        <!-- Maven Central — usado pelo central-publishing-maven-plugin -->
-        <repository>
-            <id>central</id>
-            <url>https://central.sonatype.com/api/v1/publisher</url>
-        </repository>
+        <!-- O repository de release (Maven Central) existe apenas no perfil release.
+             Sem -Prelease, um deploy de versão não-SNAPSHOT falha antes de qualquer upload. -->
     </distributionManagement>
+
+    <profiles>
+        <!-- Release mode — signing and Maven Central publication.
+             Opt-in only (-Prelease); deliberately has no <activation> block. -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <!-- false: bundle fica retido para publicação manual no Portal do Central.
+                     true (-Dcentral.autoPublish=true): publica automaticamente. -->
+                <central.autoPublish>false</central.autoPublish>
+            </properties>
+            <distributionManagement>
+                <!-- Maven Central — usado pelo central-publishing-maven-plugin -->
+                <repository>
+                    <id>central</id>
+                    <url>https://central.sonatype.com/api/v1/publisher</url>
+                </repository>
+            </distributionManagement>
+            <build>
+                <plugins>
+
+                    <!-- Assina os artefatos com GPG — obrigatório pelo Maven Central.
+                         A passphrase vem do pinentry do gpg-agent (prompt interativo). -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Publica no Maven Central via Sonatype Central Portal -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <!--suppress MavenModelInspection -->
+                            <autoPublish>${central.autoPublish}</autoPublish>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
