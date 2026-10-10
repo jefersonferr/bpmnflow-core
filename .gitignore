@@ -137,3 +137,6 @@ $RECYCLE.BIN/
 application-local.yml
 application-local.yaml
 application-local.properties
+
+patches/
+.claude/settings.local.json
