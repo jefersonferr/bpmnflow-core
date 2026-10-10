@@ -48,10 +48,10 @@ If you add a new feature, please add at least one test that covers it.
 To run the same build as CI — tests plus the JaCoCo coverage gate (80% line / 75% branch) — use:
 
 ```bash
-mvn verify -Dgpg.skip
+mvn clean verify
 ```
 
-`-Dgpg.skip` disables artifact signing, which is only required when publishing to Maven Central.
+No GPG key, passphrase or publishing credential is needed: artifact signing and Maven Central publication only exist in the opt-in `release` profile (see [Cutting a release](#cutting-a-release)).
 
 ---
 
@@ -64,7 +64,7 @@ mvn verify -Dgpg.skip
    git checkout -b feat/parallel-gateway-support
    ```
 3. **Make your changes** — keep them focused. One concern per pull request.
-4. **Run the build** (`mvn verify -Dgpg.skip`) and make sure everything passes.
+4. **Run the build** (`mvn clean verify`) and make sure everything passes.
 5. **Commit** following the convention below.
 6. **Push** your branch and open a pull request against `master`.
 
@@ -122,6 +122,37 @@ BPMNFlow follows [Semantic Versioning](https://semver.org/):
 - **PATCH** — backward-compatible bug fixes.
 
 The version on `master` always ends in `-SNAPSHOT` (e.g. `4.0.0-SNAPSHOT`) while development is in progress. The suffix is removed only when a release is cut and published to Maven Central.
+
+---
+
+## Cutting a release
+
+Releases are manual and local, performed by the maintainer. Signing and Maven Central publication exist only in the `release` profile, which is never activated automatically — it must be requested with `-Prelease`.
+
+1. **Set the release version.** Remove the `-SNAPSHOT` suffix from the version in `pom.xml` (e.g. `4.1.0`).
+2. **Build and sign.** In your own terminal, so the GPG pinentry prompt can ask for the passphrase:
+   ```bash
+   export GPG_TTY=$(tty)
+   mvn -Prelease clean verify
+   ```
+   The passphrase is typed only in the gpg-agent pinentry prompt; it is never passed on the command line or through an environment variable.
+3. **Verify the signatures.** Every `.asc` file in `target/` (library, sources and Javadoc archives) must verify against your public key:
+   ```bash
+   for f in target/*.asc; do gpg --verify "$f"; done
+   ```
+4. **Upload to Maven Central.** With the Central credentials configured in your `settings.xml` (server id `central`):
+   ```bash
+   mvn -Prelease clean deploy
+   ```
+   By default the bundle is uploaded but **not** published: it is held for manual review (`central.autoPublish` is `false`).
+5. **Approve manually.** Open the Central Portal, check that the bundle was validated, and publish it by hand. Publication on Maven Central cannot be undone.
+6. **Optional — automatic publication.** Once you trust the process, enable it with a single setting: `mvn -Prelease -Dcentral.autoPublish=true clean deploy`.
+7. **Start the next development cycle.** Bump the version to the next `-SNAPSHOT`.
+
+### Troubleshooting
+
+- **`repository element was not specified in the POM inside distributionManagement element`** when deploying a release (non-`-SNAPSHOT`) version: the `-Prelease` flag is missing. The Central repository is only declared in the `release` profile, so without it the build stops before anything is uploaded.
+- **Snapshots** keep being deployed to GitHub Packages without `-Prelease`, as before.
 
 ---
 

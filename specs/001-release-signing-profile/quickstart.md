@@ -46,7 +46,7 @@ Expected: `false` in `a.xml`, `true` in `b.xml`. In the default effective POM (`
 cp -r $SCRATCH/work $SCRATCH/us3-tmp && cd $SCRATCH/us3-tmp
 mvn -q versions:set -DnewVersion=9.9.9 -DgenerateBackupPoms=false
 # create $SCRATCH/empty-settings.xml with the Write tool, containing only <settings/>
-mvn -s $SCRATCH/empty-settings.xml -DskipTests deploy
+mvn -s $SCRATCH/empty-settings.xml -Dmaven.repo.local=$SCRATCH/m2-us3 -DskipTests deploy   # isolated local repo: the install phase must not touch ~/.m2
 ```
 
 Expected: build fails with Maven's native "repository element was not specified" error, before any upload (the message does not mention `-Prelease`; accepted trade-off Q8). The copy has no credentials and no `release` profile, so Central is unreachable. Delete the copy afterwards. Never run `versions:set` in the real working tree.

@@ -28,8 +28,8 @@
 
 **Purpose**: Isolated workspace and baseline for comparison.
 
-- [ ] T001 [agent] Create the working copy as a local Git clone: `git clone <repo path> $SCRATCH/work`, so all edits and builds happen outside the real working tree and `git diff` can later produce root-relative paths.
-- [ ] T002 [agent] In `$SCRATCH/work`, capture the baseline before any edit: `mvn -q help:effective-pom -Doutput=$SCRATCH/eff-baseline.xml` and note that `maven-gpg-plugin` and `central-publishing-maven-plugin` are currently in the default build.
+- [X] T001 [agent] Create the working copy as a local Git clone: `git clone <repo path> $SCRATCH/work`, so all edits and builds happen outside the real working tree and `git diff` can later produce root-relative paths.
+- [X] T002 [agent] In `$SCRATCH/work`, capture the baseline before any edit: `mvn -q help:effective-pom -Doutput=$SCRATCH/eff-baseline.xml` and note that `maven-gpg-plugin` and `central-publishing-maven-plugin` are currently in the default build.
 
 ---
 
@@ -37,7 +37,7 @@
 
 **Purpose**: Prepare the `pom.xml` change shared by US1–US4.
 
-- [ ] T003 [agent] In `$SCRATCH/work/pom.xml`, remove the `maven-gpg-plugin` and `central-publishing-maven-plugin` blocks (and their explanatory comments) from `<build><plugins>`, keeping their version properties. Keep `maven-source-plugin` and `maven-javadoc-plugin` in the default build (Q3, FR-006).
+- [X] T003 [agent] In `$SCRATCH/work/pom.xml`, remove the `maven-gpg-plugin` and `central-publishing-maven-plugin` blocks (and their explanatory comments) from `<build><plugins>`, keeping their version properties. Keep `maven-source-plugin` and `maven-javadoc-plugin` in the default build (Q3, FR-006).
 
 **Checkpoint**: Default build no longer signs or publishes. The `release` profile is added in US2.
 
@@ -49,8 +49,8 @@
 
 **Independent Test**: In `$SCRATCH/work`, `mvn clean verify` passes with no prompt and no `.asc` under `target/`.
 
-- [ ] T004 [US1] [agent] In `$SCRATCH/work/.github/workflows/ci.yml`, change the "Build and test" step command to `mvn verify --batch-mode --no-transfer-progress` (drop `-Dgpg.skip`, Q4, FR-010). Add no secrets and no new workflow (Q5).
-- [ ] T005 [US1] [agent] Run A2 in `$SCRATCH/work`: `mvn clean verify`; confirm success with the JaCoCo gate (80% line / 75% branch), no prompt, sources and javadoc jars present, and `find target -name '*.asc'` empty. Then run `mvn clean verify -Dgpg.skip` once and confirm it also passes unchanged (the old flag is harmless).
+- [X] T004 [US1] [agent] In `$SCRATCH/work/.github/workflows/ci.yml`, change the "Build and test" step command to `mvn verify --batch-mode --no-transfer-progress` (drop `-Dgpg.skip`, Q4, FR-010). Add no secrets and no new workflow (Q5).
+- [X] T005 [US1] [agent] Run A2 in `$SCRATCH/work`: `mvn clean verify`; confirm success with the JaCoCo gate (80% line / 75% branch), no prompt, sources and javadoc jars present, and `find target -name '*.asc'` empty. Then run `mvn clean verify -Dgpg.skip` once and confirm it also passes unchanged (the old flag is harmless).
 
 **Checkpoint**: US1 verified (SC-001, SC-002).
 
@@ -62,8 +62,8 @@
 
 **Independent Test**: Effective POM comparison (A1) shows both plugins only with `-Prelease`; maintainer signing check is M1 (Phase 9).
 
-- [ ] T006 [US2] [agent] In `$SCRATCH/work/pom.xml`, add `<profiles><profile><id>release</id>` with **no** `<activation>` block (Q1, FR-003). Inside it add `maven-gpg-plugin` (`${maven-gpg-plugin.version}`, execution `sign-artifacts`, phase `verify`, goal `sign`) with no passphrase configuration, no `--pinentry-mode loopback` and no environment-variable passphrase, and `central-publishing-maven-plugin` (`${central-publishing-maven-plugin.version}`, `<extensions>true</extensions>`, `<publishingServerId>central</publishingServerId>`) (Q2, FR-004, FR-005).
-- [ ] T007 [US2] [agent] Run A1 in `$SCRATCH/work`: write effective POMs for default and `-Prelease` (`help:effective-pom -Doutput=...`) and run `help:active-profiles` for both. Confirm the two plugins and profile `release` appear only with `-Prelease`, and diff against `$SCRATCH/eff-baseline.xml` shows nothing else changed in the default build except the removal of those two plugins.
+- [X] T006 [US2] [agent] In `$SCRATCH/work/pom.xml`, add `<profiles><profile><id>release</id>` with **no** `<activation>` block (Q1, FR-003). Inside it add `maven-gpg-plugin` (`${maven-gpg-plugin.version}`, execution `sign-artifacts`, phase `verify`, goal `sign`) with no passphrase configuration, no `--pinentry-mode loopback` and no environment-variable passphrase, and `central-publishing-maven-plugin` (`${central-publishing-maven-plugin.version}`, `<extensions>true</extensions>`, `<publishingServerId>central</publishingServerId>`) (Q2, FR-004, FR-005).
+- [X] T007 [US2] [agent] Run A1 in `$SCRATCH/work`: write effective POMs for default and `-Prelease` (`help:effective-pom -Doutput=...`) and run `help:active-profiles` for both. Confirm the two plugins and profile `release` appear only with `-Prelease`, and diff against `$SCRATCH/eff-baseline.xml` shows nothing else changed in the default build except the removal of those two plugins.
 
 **Checkpoint**: Release mode is opt-in and inspectable.
 
@@ -75,8 +75,8 @@
 
 **Independent Test**: A4 on a temporary copy; M3 is the optional manual snapshot check.
 
-- [ ] T008 [US3] [agent] In `$SCRATCH/work/pom.xml`, move the Central `<repository>` (`id` `central`, `https://central.sonatype.com/api/v1/publisher`) from the project-level `<distributionManagement>` into the `release` profile's own `<distributionManagement>`. Keep the GitHub Packages `<snapshotRepository>` at project level (Q8, FR-008). Update the XML comments accordingly.
-- [ ] T009 [US3] [agent] Run A4 on a **temporary copy** of `$SCRATCH/work` (never the repository working tree and not `$SCRATCH/work` itself): copy to `$SCRATCH/us3-tmp`, run `mvn versions:set -DnewVersion=9.9.9 -DgenerateBackupPoms=false`, then `mvn -s <empty-settings-file> -DskipTests deploy` **without** `-Prelease`. The empty `<settings/>` file is created with Write. Confirm the build fails with Maven's native "repository element was not specified" error before any upload, with no credential or Central target available. Delete `$SCRATCH/us3-tmp` afterwards. Record the observed message (it does not mention `-Prelease`; accepted trade-off Q8).
+- [X] T008 [US3] [agent] In `$SCRATCH/work/pom.xml`, move the Central `<repository>` (`id` `central`, `https://central.sonatype.com/api/v1/publisher`) from the project-level `<distributionManagement>` into the `release` profile's own `<distributionManagement>`. Keep the GitHub Packages `<snapshotRepository>` at project level (Q8, FR-008). Update the XML comments accordingly.
+- [X] T009 [US3] [agent] Run A4 on a **temporary copy** of `$SCRATCH/work` (never the repository working tree and not `$SCRATCH/work` itself): copy to `$SCRATCH/us3-tmp`, run `mvn versions:set -DnewVersion=9.9.9 -DgenerateBackupPoms=false`, then `mvn -s <empty-settings-file> -Dmaven.repo.local=$SCRATCH/m2-us3 -DskipTests deploy` **without** `-Prelease` (the isolated local repository keeps the `install` phase, which runs before `deploy`, from writing version 9.9.9 into the real `~/.m2`; in the first run this was missed and the 9.9.9 entries were removed from `~/.m2` afterwards). The empty `<settings/>` file is created with Write. Confirm the build fails with Maven's native "repository element was not specified" error before any upload, with no credential or Central target available. Delete `$SCRATCH/us3-tmp` afterwards. Record the observed message (it does not mention `-Prelease`; accepted trade-off Q8).
 
 **Checkpoint**: Guard confirmed by construction and by experiment (SC-004).
 
@@ -88,8 +88,8 @@
 
 **Independent Test**: A3: effective POM shows `autoPublish` `false` by default and `true` with `-Dcentral.autoPublish=true`. Nothing is uploaded.
 
-- [ ] T010 [US4] [agent] In `$SCRATCH/work/pom.xml`, add `<properties><central.autoPublish>false</central.autoPublish></properties>` inside the `release` profile (Q9), and set `<autoPublish>${central.autoPublish}</autoPublish>` in the `central-publishing-maven-plugin` configuration (FR-009).
-- [ ] T011 [US4] [agent] Run A3 in `$SCRATCH/work`: `mvn -q -Prelease help:effective-pom -Doutput=$SCRATCH/a.xml` and the same with `-Dcentral.autoPublish=true` into `$SCRATCH/b.xml`; `grep -n autoPublish` both. Expect `false` and `true` respectively. Run only `help:effective-pom`; do not run `deploy` or `publish`.
+- [X] T010 [US4] [agent] In `$SCRATCH/work/pom.xml`, add `<properties><central.autoPublish>false</central.autoPublish></properties>` inside the `release` profile (Q9), and set `<autoPublish>${central.autoPublish}</autoPublish>` in the `central-publishing-maven-plugin` configuration (FR-009).
+- [X] T011 [US4] [agent] Run A3 in `$SCRATCH/work`: `mvn -q -Prelease help:effective-pom -Doutput=$SCRATCH/a.xml` and the same with `-Dcentral.autoPublish=true` into `$SCRATCH/b.xml`; `grep -n autoPublish` both. Expect `false` and `true` respectively. Run only `help:effective-pom`; do not run `deploy` or `publish`.
 
 **Checkpoint**: Publication hold default and single setting verified without publishing.
 
@@ -101,9 +101,9 @@
 
 **Independent Test**: No `gpg.skip` reference remains; every step of Stories 2–4 is documented.
 
-- [ ] T012 [US5] [agent] In `$SCRATCH/work/CONTRIBUTING.md`, replace both `mvn verify -Dgpg.skip` occurrences (the build section and step 4 of "How to Contribute") with `mvn clean verify`, and delete the sentence explaining `-Dgpg.skip` (FR-011, SC-006).
-- [ ] T013 [US5] [agent] In `$SCRATCH/work/CONTRIBUTING.md`, add a "Cutting a release" section (English, near "Versioning") covering: remove `-SNAPSHOT` and bump version; `export GPG_TTY=$(tty)` then `mvn -Prelease clean verify` with the interactive pinentry prompt; `gpg --verify` of each `.asc`; deploy with `-Prelease` (default manual-review hold) and approval in the Central Portal; later enabling automatic publication with `-Dcentral.autoPublish=true`; releases are manual and local (Q5). Include a troubleshooting note: if a release deploy fails with "repository element was not specified", `-Prelease` was missing.
-- [ ] T014 [US5] [agent] Run `grep -rn "gpg.skip" $SCRATCH/work/CONTRIBUTING.md $SCRATCH/work/.github $SCRATCH/work/pom.xml` and confirm no match.
+- [X] T012 [US5] [agent] In `$SCRATCH/work/CONTRIBUTING.md`, replace both `mvn verify -Dgpg.skip` occurrences (the build section and step 4 of "How to Contribute") with `mvn clean verify`, and delete the sentence explaining `-Dgpg.skip` (FR-011, SC-006).
+- [X] T013 [US5] [agent] In `$SCRATCH/work/CONTRIBUTING.md`, add a "Cutting a release" section (English, near "Versioning") covering: remove `-SNAPSHOT` and bump version; `export GPG_TTY=$(tty)` then `mvn -Prelease clean verify` with the interactive pinentry prompt; `gpg --verify` of each `.asc`; deploy with `-Prelease` (default manual-review hold) and approval in the Central Portal; later enabling automatic publication with `-Dcentral.autoPublish=true`; releases are manual and local (Q5). Include a troubleshooting note: if a release deploy fails with "repository element was not specified", `-Prelease` was missing.
+- [X] T014 [US5] [agent] Run `grep -rn "gpg.skip" $SCRATCH/work/CONTRIBUTING.md $SCRATCH/work/.github $SCRATCH/work/pom.xml` and confirm no match.
 
 **Checkpoint**: Documentation consistent with behavior.
 
@@ -113,11 +113,11 @@
 
 **Purpose**: Single patch for the maintainer (constitution V, Q6).
 
-- [ ] T015 [agent] On the **final** `pom.xml` in `$SCRATCH/work`, repeat all of: (A1) effective POM and `help:active-profiles` with and without `-Prelease` — the gpg and Central plugins and profile `release` appear only with `-Prelease`; (A2) `mvn clean verify` passes, no prompt, no `.asc` in `target/`; (A3) `-Prelease` effective POM shows `autoPublish` `false` by default and `true` with `-Dcentral.autoPublish=true`. Also confirm, in the default effective POM (no deploy), that the GitHub Packages `snapshotRepository` (`id` `github`, `https://maven.pkg.github.com/jefersonferr/bpmnflow-core`) is still present and the Central `<repository>` is absent (FR-008).
-- [ ] T016 [agent] Generate the patch with `git -C $SCRATCH/work diff` (the copy is a Git clone, so paths are relative to the repository root: `a/pom.xml`, `b/pom.xml`, `a/.github/workflows/ci.yml`, `a/CONTRIBUTING.md`). Print the diff to the terminal and write exactly that content with the Write tool to `patches/001-release-signing-profile.patch` (create `patches/` by writing the file; no shell redirection). It is the only patch of this feature.
-- [ ] T017 [agent] In the real repository, run `git apply --check patches/001-release-signing-profile.patch` (read-only; it does not modify the working tree) and attach the command output (or "no output = applies cleanly") to the report and as a note under this task. If it fails, regenerate the diff (T016), rewrite the patch and repeat this check until it passes.
-- [ ] T018 [agent] Apply the patch to a second fresh clone (`$SCRATCH/verify-clone`, via `git apply`) and run `mvn clean verify` there to confirm the patch alone produces a passing, credential-free build.
-- [ ] T019 [agent] Confirm `plan.md` still declares the public-API semver impact as **none**, and report to the maintainer a 3–5 line explanation of what the patch changes and why (Portuguese reply per `CLAUDE.md`).
+- [X] T015 [agent] On the **final** `pom.xml` in `$SCRATCH/work`, repeat all of: (A1) effective POM and `help:active-profiles` with and without `-Prelease` — the gpg and Central plugins and profile `release` appear only with `-Prelease`; (A2) `mvn clean verify` passes, no prompt, no `.asc` in `target/`; (A3) `-Prelease` effective POM shows `autoPublish` `false` by default and `true` with `-Dcentral.autoPublish=true`. Also confirm, in the default effective POM (no deploy), that the GitHub Packages `snapshotRepository` (`id` `github`, `https://maven.pkg.github.com/jefersonferr/bpmnflow-core`) is still present and the Central `<repository>` is absent (FR-008).
+- [X] T016 [agent] Generate the patch with `git -C $SCRATCH/work diff` (the copy is a Git clone, so paths are relative to the repository root: `a/pom.xml`, `b/pom.xml`, `a/.github/workflows/ci.yml`, `a/CONTRIBUTING.md`). Print the diff to the terminal and write exactly that content with the Write tool to `patches/001-release-signing-profile.patch` (create `patches/` by writing the file; no shell redirection). It is the only patch of this feature.
+- [X] T017 [agent] In the real repository, run `git apply --check patches/001-release-signing-profile.patch` (read-only; it does not modify the working tree) and attach the command output (or "no output = applies cleanly") to the report and as a note under this task. If it fails, regenerate the diff (T016), rewrite the patch and repeat this check until it passes.
+- [X] T018 [agent] Apply the patch to a second fresh clone (`$SCRATCH/verify-clone`, via `git apply`) and run `mvn clean verify` there to confirm the patch alone produces a passing, credential-free build.
+- [X] T019 [agent] Confirm `plan.md` still declares the public-API semver impact as **none**, and report to the maintainer a 3–5 line explanation of what the patch changes and why (Portuguese reply per `CLAUDE.md`).
 
 **Checkpoint**: All agent work ends at `patches/001-release-signing-profile.patch`.
 
