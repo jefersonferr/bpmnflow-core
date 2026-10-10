@@ -18,6 +18,7 @@
 
 - **No task may publish to Maven Central.** Only `help:effective-pom`, `help:active-profiles`, `clean verify`, and the US3 temp-copy deploy (which has no Central target) are run by the agent.
 - The agent does not edit `pom.xml`, `.github/workflows/ci.yml` or `CONTRIBUTING.md` in the working tree. It edits copies under the scratchpad directory with Edit/Write only (no `sed -i`, `echo >`, `tee`, heredocs), then delivers the diff as a patch.
+- The shell-driven file changes `git apply` (T018) and `mvn versions:set` (T009) are allowed **only** on throwaway copies inside the scratchpad directory, never on the real working tree (the real repository only receives `git apply --check`, T017, which is read-only).
 - The agent never runs `git commit`, `push`, `merge` or `rebase`.
 - Scratch root below is written `$SCRATCH` = the session scratchpad directory.
 
@@ -49,7 +50,7 @@
 **Independent Test**: In `$SCRATCH/work`, `mvn clean verify` passes with no prompt and no `.asc` under `target/`.
 
 - [ ] T004 [US1] [agent] In `$SCRATCH/work/.github/workflows/ci.yml`, change the "Build and test" step command to `mvn verify --batch-mode --no-transfer-progress` (drop `-Dgpg.skip`, Q4, FR-010). Add no secrets and no new workflow (Q5).
-- [ ] T005 [US1] [agent] Run A2 in `$SCRATCH/work`: `mvn clean verify`; confirm success with the JaCoCo gate (80% line / 75% branch), no prompt, sources and javadoc jars present, and `find target -name '*.asc'` empty.
+- [ ] T005 [US1] [agent] Run A2 in `$SCRATCH/work`: `mvn clean verify`; confirm success with the JaCoCo gate (80% line / 75% branch), no prompt, sources and javadoc jars present, and `find target -name '*.asc'` empty. Then run `mvn clean verify -Dgpg.skip` once and confirm it also passes unchanged (the old flag is harmless).
 
 **Checkpoint**: US1 verified (SC-001, SC-002).
 
@@ -112,7 +113,7 @@
 
 **Purpose**: Single patch for the maintainer (constitution V, Q6).
 
-- [ ] T015 [agent] Re-run A2 (`mvn clean verify`) once more in `$SCRATCH/work` on the final edits and confirm everything still passes.
+- [ ] T015 [agent] On the **final** `pom.xml` in `$SCRATCH/work`, repeat all of: (A1) effective POM and `help:active-profiles` with and without `-Prelease` — the gpg and Central plugins and profile `release` appear only with `-Prelease`; (A2) `mvn clean verify` passes, no prompt, no `.asc` in `target/`; (A3) `-Prelease` effective POM shows `autoPublish` `false` by default and `true` with `-Dcentral.autoPublish=true`. Also confirm, in the default effective POM (no deploy), that the GitHub Packages `snapshotRepository` (`id` `github`, `https://maven.pkg.github.com/jefersonferr/bpmnflow-core`) is still present and the Central `<repository>` is absent (FR-008).
 - [ ] T016 [agent] Generate the patch with `git -C $SCRATCH/work diff` (the copy is a Git clone, so paths are relative to the repository root: `a/pom.xml`, `b/pom.xml`, `a/.github/workflows/ci.yml`, `a/CONTRIBUTING.md`). Print the diff to the terminal and write exactly that content with the Write tool to `patches/001-release-signing-profile.patch` (create `patches/` by writing the file; no shell redirection). It is the only patch of this feature.
 - [ ] T017 [agent] In the real repository, run `git apply --check patches/001-release-signing-profile.patch` (read-only; it does not modify the working tree) and attach the command output (or "no output = applies cleanly") to the report and as a note under this task. If it fails, regenerate the diff (T016), rewrite the patch and repeat this check until it passes.
 - [ ] T018 [agent] Apply the patch to a second fresh clone (`$SCRATCH/verify-clone`, via `git apply`) and run `mvn clean verify` there to confirm the patch alone produces a passing, credential-free build.
@@ -130,7 +131,7 @@ Run in this order:
 
 - [ ] T020 [maintainer] (a) Review and apply `patches/001-release-signing-profile.patch` to the working tree through IntelliJ (the agent never applies it).
 - [ ] T021 [US1] [maintainer] (b) Run `mvn clean verify` in the real working tree; confirm it passes with no prompt and no `.asc` files in `target/`.
-- [ ] T022 [US2] [maintainer] (c) M1: in your own terminal run `export GPG_TTY=$(tty)` and `mvn -Prelease clean verify`; confirm the pinentry prompt appears and `.asc` files exist for the jar, sources and javadoc; then run `gpg --verify` on each `.asc` and confirm a good signature (SC-003). This does not upload.
+- [ ] T022 [US2] [maintainer] (c) M1: in your own terminal run `export GPG_TTY=$(tty)` and `mvn -Prelease clean verify`; confirm the pinentry prompt appears and `.asc` files exist for the jar, sources and javadoc; then run `gpg --verify` on each `.asc` and confirm a good signature (SC-003). This does not upload. Optional: if no signing key is available, confirm the build fails at the signing step, before any upload.
 - [ ] T023 [maintainer] (d) Commit the change yourself (the agent never commits).
 - [ ] T024 [US1] [maintainer] (e) Open the pull request and confirm CI is green (`mvn verify --batch-mode --no-transfer-progress`, JDK 21 and 25, no signing flag).
 - [ ] T025 [US4] [maintainer] (f) M2: at the first real release, follow "Cutting a release" in `CONTRIBUTING.md` with default settings and confirm in the Maven Central Portal that the bundle is validated and held for manual publication before approving (SC-005).

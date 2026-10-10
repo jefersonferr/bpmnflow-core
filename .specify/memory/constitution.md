@@ -1,12 +1,3 @@
-<!--
-Sync Impact Report (temporary; remove before committing)
-- Version change: (template, unversioned) → 1.0.0
-- Modified principles: none renamed (initial adoption; all five template slots filled)
-- Added sections: Core Principles I–V, Technical Constraints, Development Workflow, Governance
-- Removed sections: none
-- Deferred items: none
-- Templates reviewed (not modified): plan/spec/tasks templates read the constitution at runtime
--->
 # bpmnflow-core Constitution
 
 ## Core Principles
@@ -64,7 +55,7 @@ Rationale: contributors and agents must be able to build and verify without priv
 AI agents working in this repository propose changes; the maintainer applies and commits them.
 
 - Agents MUST NOT run `git commit`, `push`, `merge` or `rebase`.
-- Changes to `src/` MUST be delivered as unified patches in `patches/NNN-lote.patch`,
+- Changes to `src/` MUST be delivered as unified patches in `patches/NNN-<feature-slug>.patch`,
   accompanied by a short explanation of what changes and why.
 - Spec Kit artifacts (`specs/`, `.specify/`) MAY be edited directly.
 - Files MUST be modified through the Edit/Write tools, not through shell redirection or
@@ -104,4 +95,4 @@ Compliance MUST be checked in every `plan.md` Constitution Check and during revi
 patch; violations MUST be justified in the plan or the change is rejected. Runtime guidance for
 agents lives in `CLAUDE.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-09 | **Last Amended**: 2026-10-09
+**Version**: 1.0.1 | **Ratified**: 2026-10-09 | **Last Amended**: 2026-10-09

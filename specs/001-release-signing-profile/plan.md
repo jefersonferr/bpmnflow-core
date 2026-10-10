@@ -44,7 +44,7 @@ Nothing in `src/` changes. No step of this plan, of its verification, or of the 
 | II. Minimal Runtime Dependencies | Pass | Only build plugins change; runtime classpath untouched. |
 | III. Coverage Gate | Pass | JaCoCo configuration and thresholds not touched; `mvn clean verify` still runs the gate. |
 | IV. Credential-Free Everyday Build | Pass (primary driver) | Signing and publishing live only in the opt-in profile. |
-| V. Agent Proposes, Maintainer Applies | Pass | Changes go out as `patches/NNN-lote.patch` with a 3–5 line explanation, even for non-`src/` files, so the maintainer applies them. Agent edits and verification run in a local Git clone in the scratchpad, never in the working tree; the patch is produced with `git diff` there and only checked (`git apply --check`) against the real repository. No `git commit/push/merge/rebase`. Spec Kit artifacts are edited directly. |
+| V. Agent Proposes, Maintainer Applies | Pass | Changes go out as `patches/001-release-signing-profile.patch` (pattern `NNN-<feature-slug>.patch`) with a 3–5 line explanation, even for non-`src/` files, so the maintainer applies them. Agent edits and verification run in a local Git clone in the scratchpad, never in the working tree; the patch is produced with `git diff` there and only checked (`git apply --check`) against the real repository. No `git commit/push/merge/rebase`. Spec Kit artifacts are edited directly. |
 
 No violations; Complexity Tracking not needed.
 
@@ -83,7 +83,7 @@ No `contracts/`: the feature exposes no external interface; the command-line sur
 pom.xml                      # signing + Central publishing + Central <repository> moved into profile `release`; single autoPublish property
 .github/workflows/ci.yml     # `mvn verify` without -Dgpg.skip
 CONTRIBUTING.md              # plain verify command; new "Cutting a release" section
-patches/                     # NNN-lote.patch deliverables (constitution V)
+patches/                     # 001-release-signing-profile.patch (constitution V)
 ```
 
 **Structure Decision**: Single Maven module; changes confined to the three files above. `src/` untouched.
