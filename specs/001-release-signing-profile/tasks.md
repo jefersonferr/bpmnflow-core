@@ -129,10 +129,10 @@
 
 Run in this order:
 
-- [ ] T020 [maintainer] (a) Review and apply `patches/001-release-signing-profile.patch` to the working tree through IntelliJ (the agent never applies it).
-- [ ] T021 [US1] [maintainer] (b) Run `mvn clean verify` in the real working tree; confirm it passes with no prompt and no `.asc` files in `target/`.
-- [ ] T022 [US2] [maintainer] (c) M1: in your own terminal run `export GPG_TTY=$(tty)` and `mvn -Prelease clean verify`; confirm the pinentry prompt appears and `.asc` files exist for the jar, sources and javadoc; then run `gpg --verify` on each `.asc` and confirm a good signature (SC-003). This does not upload. Optional: if no signing key is available, confirm the build fails at the signing step, before any upload.
-- [ ] T023 [maintainer] (d) Commit the change yourself (the agent never commits).
+- [X] T020 [maintainer] (a) Review and apply `patches/001-release-signing-profile.patch` to the working tree through IntelliJ (the agent never applies it).
+- [X] T021 [US1] [maintainer] (b) Run `mvn clean verify` in the real working tree; confirm it passes with no prompt and no `.asc` files in `target/`.
+- [X] T022 [US2] [maintainer] (c) M1: in your own terminal run `export GPG_TTY=$(tty)` and `mvn -Prelease clean verify`; confirm the pinentry prompt appears and `.asc` files exist for the jar, sources and javadoc; then run `gpg --verify` on each `.asc` and confirm a good signature (SC-003). This does not upload. Optional: if no signing key is available, confirm the build fails at the signing step, before any upload.
+- [X] T023 [maintainer] (d) Commit the change yourself (the agent never commits).
 - [ ] T024 [US1] [maintainer] (e) Open the pull request and confirm CI is green (`mvn verify --batch-mode --no-transfer-progress`, JDK 21 and 25, no signing flag).
 - [ ] T025 [US4] [maintainer] (f) M2: at the first real release, follow "Cutting a release" in `CONTRIBUTING.md` with default settings and confirm in the Maven Central Portal that the bundle is validated and held for manual publication before approving (SC-005).
 - [ ] T026 [US3] [maintainer] (g) M3 (optional, manual): with GitHub Packages credentials in your own `settings.xml`, deploy a `-SNAPSHOT` version without `-Prelease` and confirm it reaches the GitHub Packages registry as before (FR-008).
