@@ -59,4 +59,4 @@ These came from the plan refinement, not from the Q1–Q9 grilling. They refine 
 
 ## R7. Delivery under project rules
 
-- **Decision**: Because constitution V and `CLAUDE.md` require patches and forbid shell-based edits, the implement phase produces a single patch, `patches/001-lote.patch` (Q6), covering `pom.xml`, `ci.yml` and `CONTRIBUTING.md` (Q7). Agent checks A1–A4 run on a scratchpad copy with the patch applied.
+- **Decision**: Because constitution V and `CLAUDE.md` require patches and forbid shell-based edits, the implement phase produces a single patch, `patches/001-release-signing-profile.patch` (Q6), covering `pom.xml`, `ci.yml` and `CONTRIBUTING.md` (Q7). The edits are made in a local Git clone in the scratchpad and the patch is produced with `git diff` there (root-relative paths); agent checks A1–A4 run in that clone, and `git apply --check` is run against the real repository.

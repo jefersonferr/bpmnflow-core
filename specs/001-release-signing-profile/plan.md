@@ -30,7 +30,7 @@ Nothing in `src/` changes. No step of this plan, of its verification, or of the 
 
 **Performance Goals**: N/A
 
-**Constraints**: Single patch `patches/001-lote.patch` including `CONTRIBUTING.md` (Q6, Q7); Release mode only via explicit `-Prelease` (FR-003); snapshot deploy to GitHub Packages unchanged (FR-008); no verification step may publish to Maven Central; passphrase only through the interactive pinentry.
+**Constraints**: Single patch `patches/001-release-signing-profile.patch` including `CONTRIBUTING.md` (Q6, Q7); Release mode only via explicit `-Prelease` (FR-003); snapshot deploy to GitHub Packages unchanged (FR-008); no verification step may publish to Maven Central; passphrase only through the interactive pinentry.
 
 **Scale/Scope**: 3 files: `pom.xml`, `.github/workflows/ci.yml`, `CONTRIBUTING.md`.
 
@@ -44,7 +44,7 @@ Nothing in `src/` changes. No step of this plan, of its verification, or of the 
 | II. Minimal Runtime Dependencies | Pass | Only build plugins change; runtime classpath untouched. |
 | III. Coverage Gate | Pass | JaCoCo configuration and thresholds not touched; `mvn clean verify` still runs the gate. |
 | IV. Credential-Free Everyday Build | Pass (primary driver) | Signing and publishing live only in the opt-in profile. |
-| V. Agent Proposes, Maintainer Applies | Pass | Changes go out as `patches/NNN-lote.patch` with a 3–5 line explanation, even for non-`src/` files, so the maintainer applies them. Agent verification runs on a scratch copy with the patch applied (scratchpad), never in the working tree. No `git commit/push/merge/rebase`. Spec Kit artifacts are edited directly. |
+| V. Agent Proposes, Maintainer Applies | Pass | Changes go out as `patches/NNN-lote.patch` with a 3–5 line explanation, even for non-`src/` files, so the maintainer applies them. Agent edits and verification run in a local Git clone in the scratchpad, never in the working tree; the patch is produced with `git diff` there and only checked (`git apply --check`) against the real repository. No `git commit/push/merge/rebase`. Spec Kit artifacts are edited directly. |
 
 No violations; Complexity Tracking not needed.
 
