@@ -50,11 +50,11 @@ The maintainer cuts a release by explicitly activating the release mode. Only th
 
 ### User Story 3 - Clear failure of an unactivated release deploy (Priority: P2)
 
-If someone attempts to deploy a release (non-snapshot) version without activating release mode, the build fails with an understandable message instead of attempting an unsigned or misdirected upload. Snapshot deployment to the internal package registry keeps working as before.
+If someone attempts to deploy a release (non-snapshot) version without activating release mode, the build fails before uploading anything instead of attempting an unsigned or misdirected upload; the troubleshooting documentation explains the cause. Snapshot deployment to the internal package registry keeps working as before.
 
 **Why this priority**: Prevents accidental unsigned or misrouted releases; lower than P1 because it is a guard rail, not the main flow.
 
-**Independent Test**: Attempt a deploy of a release version without activating release mode and confirm it fails before uploading anything, with a message that makes the missing release configuration evident.
+**Independent Test**: Attempt a deploy of a release version without activating release mode and confirm it fails before uploading anything.
 
 **Acceptance Scenarios**:
 
@@ -110,7 +110,7 @@ A contributor reading `CONTRIBUTING.md` finds the correct everyday verification 
 - **FR-004**: In release mode, the library, sources and documentation archives MUST be signed, with the passphrase supplied through the interactive key prompt.
 - **FR-005**: Signing and Central publication configuration MUST exist only in release mode.
 - **FR-006**: Source and documentation archives MUST continue to be produced in the standard build.
-- **FR-007**: A deploy of a release (non-snapshot) version without release mode MUST fail before uploading anything, with a clear indication that release configuration is missing.
+- **FR-007**: A deploy of a release (non-snapshot) version without release mode MUST fail before uploading anything. Clarity about the cause comes from the documentation, not from the build message.
 - **FR-008**: Snapshot deployment to the GitHub Packages registry MUST remain unchanged.
 - **FR-009**: Release mode MUST default to holding the bundle for manual publication, with a single setting to enable automatic publication.
 - **FR-010**: The CI workflow MUST verify the project without any signing-skip flag.
