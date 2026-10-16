@@ -28,6 +28,7 @@
 - [Parsing Behavior](#parsing-behavior)
 - [Upgrading from 3.x](#upgrading-from-3x)
 - [Use Cases](#use-cases)
+- [Building from Source](#building-from-source)
 - [What's Next](#whats-next)
 - [License](#license)
 
@@ -533,6 +534,18 @@ Generate up-to-date process documentation directly from the BPMN model — activ
 ### 6. Migrating between engines
 
 Moving from Camunda 7 to Operaton, CIB seven or Camunda 8? Parse the old and new versions of a model and compare the resulting `Workflow` objects to confirm the business structure survived the migration.
+
+---
+
+## Building from Source
+
+```bash
+mvn clean verify
+```
+
+The default build needs **no GPG key, passphrase or publishing credential**: artifact signing and Maven Central publication exist only in the opt-in `release` profile (`-Prelease`), which is never activated automatically. The old `-Dgpg.skip` flag is no longer needed.
+
+Release steps are maintainer-only; see [Cutting a release](CONTRIBUTING.md#cutting-a-release) in CONTRIBUTING.md.
 
 ---
 
